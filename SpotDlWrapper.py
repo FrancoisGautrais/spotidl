@@ -7,6 +7,7 @@ from spotdl.helpers import SpotifyHelpers
 from spotdl.metadata_search import MetadataSearch
 from spotdl.track import Track
 
+import config
 from TrackSet import TrackSet, TrackEntry
 
 
@@ -24,8 +25,8 @@ class SpotDlWrapper:
     def __init__(self, init=True):
         self.spotipy=None
         self.tool=None
-        self.dir="out"
-        self.format="{artist}/{album}/{track-number}-{track-name}.{output-ext}"
+        self.dir=config.OUTPUT_DIR
+        self.format=config.OUTPUT_FORMAT
         self.completeFormat=os.path.join(self.dir, self.format)
         if init: self.init()
 
