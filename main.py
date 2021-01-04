@@ -1,11 +1,11 @@
 
 import logging
+import config
 import os
 import time
 
 import spotdl
 import spotipy
-from spotdl.authorize.services import AuthorizeSpotify
 from spotdl.command_line.core import Spotdl, MetadataSearch
 from spotdl.command_line.exceptions import NoYouTubeVideoFoundError, NoYouTubeVideoMatchError
 from spotdl.encode.encoders import EncoderFFmpeg
@@ -51,5 +51,5 @@ while(True) :
 from server import DlServer
 
 dl = DlServer()
-dl.listen(8080)
+dl.listen(config.PORT)
 
