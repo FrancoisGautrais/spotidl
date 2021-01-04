@@ -36,10 +36,10 @@ class Downloader(Thread):
                 continue
 
             self.running[track.url] = track
-            try:
-                self.spot.download(track)
-            except:
-                print("Erreur impossible de télécharger")
+            #try:
+            self.spot.download(track)
+            #except:
+            #    print("Erreur impossible de télécharger")
 
             self.fifo.lock.acquire()
             del self.running[track.url]
