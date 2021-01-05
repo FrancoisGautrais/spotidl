@@ -25,11 +25,17 @@ class TrackEntry:
     def __init__(self, track):
         if track:
             self.artists=list(map(lambda x: ArtistEntryShort(x), track["artists"]))
-            self.duration=track["duration_ms"]/1000
-            self.url=track["external_urls"]["spotify"]
+            self.duration=None
+            if "duration_ms" in track:
+                self.duration=(track["duration_ms"]/1000)
+            elif "duration" in track:
+                self.duration = track["duration"]
+            self.url=track["external_urls"]["spotify"] if "external_urls" in track else track["url"]
             self.name=track["name"]
             self.track_number=track["track_number"]
             self.album=track["album"] if "album" in track else "__none__"
+            if isinstance(self.album, dict):
+                self.album=self.album["name"]
         else:
             self.artists=[]
             self.duration=None
@@ -40,6 +46,7 @@ class TrackEntry:
 
     def json(self):
         return {
+            "type" : "track",
             "artists" : list(map(lambda x: x.json(), self.artists)),
             "duration" : self.duration,
             "url" : self.url,
@@ -48,7 +55,8 @@ class TrackEntry:
             "album": self.album
         }
 
-
+    def trackset(self):
+        return TrackSet(self)
     def __str__(self): return self.str(0)
 
     def __repr__(self): return str(self)
@@ -79,10 +87,14 @@ class AlbumEntry(list):
 
     def json(self):
         return {
+            "type" : "album",
             "artists" : list(map( lambda x: x.json(), self.artists)),
             "name" : self.name,
             "tracks" :  list(map( lambda x: x.json(), self))
         }
+
+    def trackset(self):
+        return TrackSet(self)
 
     def __str__(self): return self.str()
     def __repr__(self): return str(self)
@@ -119,11 +131,17 @@ class ArtistEntry:
     def str(self, i=0):
         return indent(i)+self.name+"\n"+"\n".join(list(map(lambda t: t.str(i+1), self.albums.values())))
 
+    def trackset(self):
+        return TrackSet(self.tracks)
 
     def append(self, track): self.add_tracks(track)
 
     def json(self):
-        return list(map(lambda x: x.json(), self.albums.values()))
+        return {
+            "type" : "artist",
+            "albums" : list(map(lambda x: x.json(), self.albums.values())),
+            "name" : self.name
+        }
 
 class TrackSet:
     def __init__(self, tracks=[]):
@@ -149,9 +167,14 @@ class TrackSet:
         self.artists[art].append(track)
 
 
+    def trackset(self):
+        return self
 
     def json(self):
-        return list(map(lambda x: x.json(), self.artists.values()))
+        return {
+            "artists" : list(map(lambda x: x.json(), self.artists.values())),
+            "count" : len(self.tracks)
+        }
 
     def __str__(self): return self.str()
     def __repr__(self): return str(self)

@@ -1,0 +1,24 @@
+<div class="row">
+  <h1>Rechecher</h1>
+  <div class="input-group mb-3">
+
+    <input type="text" class="form-control" id="search-bar" placeholder="Entrez l'URL spotify d'un titre, d'un artiste oud'un album" aria-label="" aria-describedby="basic-addon1" onkeydown="search(this)">
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary" type="button" onclick="on_send()"><i class="material-icons md-48">send</i></button>
+    </div>
+  </div>
+  <div class="or-upload">ou envoyer un fichier d'url<br></div>
+  <div class="input-group mb-3">
+    <form enctype="multipart/form-data">
+        <input class="btn btn-light" name="file" type="file" id="file-value" />
+        <input class="btn btn-success" type="button" onclick="on_upload()"  value="Envoyer" />
+    </form>
+  </div>
+</div>
+
+<style>
+.or-upload {
+  margin-bottom: 20px;
+  font-size: 16pt;
+}
+</style>

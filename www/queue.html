@@ -1,54 +1,15 @@
-
-<!doctype html>
-<html lang="fr">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="third-party/css/bootstrap.min.css" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-
-    <title>Hello, world!</title>
-  </head>
-  <body>
-    <#include("www/gen/bar.html")>
-
-    <h1><button class="btn btn-outline-secondary" type="button" onclick="on_refresh()"><i class="material-icons md-48">refresh</i></button>File d'attente</h1>
-    <div class="container">
-      <div class="row">
-        <div class="input-group col-s-3">
-
-
-        </div>
-
-      </div>
-      <div class="row">
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Titre</th>
-              <th scope="col">Album</th>
-              <th scope="col">Artiste</th>
-            </tr>
-          </thead>
-          <tbody id="queue-root">
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="third-party/js/jquery-3.5.1.min.js"  crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"  crossorigin="anonymous"></script>
-    <script src="third-party/js/bootstrap.min.js"  crossorigin="anonymous"></script>
-    <script src="js/localdata.js"></script>
-    <script src="js/template.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/queue.js"></script>
-  </body>
-</html>
+<div class="row">
+  <h1>File d'attente</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Titre</th>
+        <th scope="col">Album</th>
+        <th scope="col">Artiste</th>
+      </tr>
+    </thead>
+    <tbody id="queue-root">
+    </tbody>
+  </table>
+</div>

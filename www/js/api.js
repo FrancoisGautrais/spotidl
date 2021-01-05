@@ -33,7 +33,7 @@ class DlAPI
                 if(!(!_a && _b=="error" && _c==""))
                 {
                     var resp = JSON.parse(_a.responseText);
-                    error( (errorText?errorText:"Erreur")+ "( "+resp.code+" : '"+resp.message+"') : " + JSON.stringify(resp.data))
+                    modal_alert("Erreur", (errorText?errorText:"Erreur")+ "( "+resp.code+" : '"+resp.message+"') : " + JSON.stringify(resp.data))
                 }else{
                     error( "Erreur : Le serveur a clos la connexion")
 
@@ -103,6 +103,19 @@ class DlAPI
 
     add_url(url, opt={}){
         return this.ajax_get("add/"+url, opt)
+    }
+
+    list(url, opt={}){
+        return this.ajax_get("list/"+url, opt)
+    }
+
+    add_post(data, opt={}){
+        return this.ajax_post("add", data, opt)
+    }
+
+
+    list_file(url, opt={}){
+        return this.ajax_post("list", data, opt)
     }
 }
 

@@ -1,0 +1,74 @@
+<template id="template-track">
+<tr data-artistid="{artistid}" data-albumid="{albumid}" data-url="{url}"  data-type="track">
+  <td>
+    <div class="form-check">
+    <input class="form-check-input track-checkbox" type="checkbox" value="" data-artistid="{artistid}"
+           data-albumid="{albumid}" data-url="{url}" data-type="track-checkbox" checked>
+    </div>
+    <div>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      {track_number} - {name}
+    </div>
+    </td>
+  <td>{duration}</td>
+</tr>
+</template>
+
+<template id="template-album">
+<tr data-artistid="{artistid}" data-albumid="{albumid}" data-type="album">
+  <td>
+    <span class="d-flex flex-row">
+      <a class="toggle-album p-2"  onclick="toggle_table('album', '{albumid}')" data-artistid="{artistid}" data-albumid="{albumid}">
+        <i class="material-icons">expand_more</i>
+      </a>
+      <span class="select-album  p-2" >{name}</span>
+      <button class="btn btn-primary p-2 action-button" onclick="select_all('album', '{albumid}', true)">Tout cocher</button>
+      <button class="btn btn-danger p-2 action-button" onclick="select_all('album', '{albumid}', false)">Tout décocher</button>
+
+    </span>
+    <table class="table select-title"  data-artistid="{artistid}" data-albumid="{albumid}" data-type="album-content">
+      <tbody>
+        <tr data-template="template-track" data-var="tracks"></tr>
+      </tbody>
+    </table>
+  </td>
+</tr>
+</template>
+
+<template id="template-artist">
+<div  data-artistid="{artistid}" data-type="artist">
+  <table class="table select-artist">
+    <thead>
+      <tr>
+        <th scope="col">
+          <span class="d-flex flex-row">
+            <a class="toggle-artist p-2" onclick="toggle_table('artist', '{artistid}')" data-artistid="{artistid}">
+              <i class="material-icons">expand_more</i>
+            </a>
+            <span class=" p-2">{name}</span>
+            <button class="btn btn-primary p-2 action-button" onclick="select_all('artist', '{artistid}', true)">Tout cocher</button>
+            <button class="btn btn-danger p-2 action-button" onclick="select_all('artist', '{artistid}', false)">Tout décocher</button>
+          </span>
+        </th>
+      </tr>
+    </thead>
+    <tbody data-artistid="{artistid}" data-type="artist-content">
+      <tr data-template="template-album" data-var="albums"></tr>
+    </tbody>
+  </table>
+</div>
+</template>
+
+<template id="template-allartists">
+<div data-template="template-artist" data-var="."></div>
+</template>
+
+
+
+<div class="row">
+  <button class="btn btn-success" onclick="download_selected()">Télécharger</button>
+  <button class="btn btn-secondary" onclick="cancel_selected()">Annuler</button>
+</div>
+<div id="template-root" class="row">
+
+</div>

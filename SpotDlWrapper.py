@@ -40,7 +40,7 @@ class SpotDlWrapper:
     def download_track(self, track):
         print("Fetching metadata for '%s'"%track)
         metadata = self.get_metadata(track)
-        self.download_track_with_meta(metadata)
+        return self.download_track_with_meta(metadata)
 
     def download_track_with_meta(self, metadata):
         stream = metadata["streams"].get(
@@ -59,6 +59,9 @@ class SpotDlWrapper:
         track.download_while_re_encoding(stream, filename)
 
         track.apply_metadata(filename)
+
+        return TrackEntry(metadata)
+
 
     def get_metadata(self, track):
         subtracks = track.split("::")
@@ -79,13 +82,16 @@ class SpotDlWrapper:
         return self.tool.fetch_album(album_uri)
 
     def track(self, uri):
-        return TrackEntry(self.spotipy.track(uri))
+        tr = self.spotipy.track(uri)
+        return TrackEntry(tr)
 
     def artist_tracks(self, artist_uri):
         albums = self.tool.fetch_albums_from_artist(artist_uri)
         ts = TrackSet()
+        artist=self.spotipy._get_id("artist", artist_uri) if artist_uri else None
         for album in albums:
-            ts.add_tracks(self.album_tracks(album["id"], artist_uri))
+            if not artist_uri or  has_artist(album, artist):
+                ts.add_tracks(self.album_tracks(album["id"], artist_uri))
         return ts
 
     def album_tracks(self, album_uri, artist_uri=None):
@@ -103,19 +109,29 @@ class SpotDlWrapper:
         tmp["total"]=n
         return TrackSet(tmp["items"])
 
-    def download(self, tracks):
+    def _download(self, tracks):
         if isinstance(tracks, str):
             if tracks.startswith("https://open.spotify.com/track/"):
                 return self.download_track(tracks)
             if tracks.startswith("https://open.spotify.com/artist/"):
-                return self.download(self.artist_tracks(tracks))
+                return self._download(self.artist_tracks(tracks))
             if tracks.startswith("https://open.spotify.com/album/"):
-                return self.download(self.album_tracks(tracks))
+                return self._download(self.album_tracks(tracks))
         if isinstance(tracks, TrackSet):
-            return self.download(tracks.tracks)
+            return self._download(tracks.tracks)
         if isinstance(tracks, TrackEntry):
-            return self.download(tracks.url)
+            return self._download(tracks.url)
         if isinstance(tracks, (list,tuple)):
+            ts = TrackSet()
             for track in tracks:
-                self.download_track(track.url)
+                ts.add_tracks(self.download_track(track.url))
+            return ts
+
+    def download(self, tracks):
+        tracks=self._download(tracks)
+        if isinstance(tracks, TrackEntry):
+            return TrackSet(tracks)
+        if isinstance(tracks, TrackSet):
+            return tracks
+        raise Exception("Type de retour de _download inattendu")
 
