@@ -24,7 +24,13 @@ th {
 tr{
     padding-top: 0px;
     padding-bottom: 0px;
-    font-size: 14px;
+    font-size: 10pt;
+}
+
+th{
+    padding-top: 0px;
+    padding-bottom: 0px;
+    font-size: 12pt ! important;
 }
 .action-button {
     margin-left: 24px;
@@ -50,4 +56,43 @@ tr{
 
 #template-root > div {
     width: 100%;
+}
+
+
+
+
+
+.queue-title {
+    font-size: 16pt;
+    font-weight: 500;
+}
+
+.hidden {
+    display: none;
+}
+
+.queue-root {
+    width: 100%;
+    margin-bottom: 20px;
+    border-radius: 2px;
+    border-color: #000;
+    border-width: 2px;
+}
+.queue-root > td {
+    border-color: #0000;
+}
+
+.queue-root-queue{
+    background-color: #63BFEB40;
+}
+
+.queue-root-done{
+    background-color: #98F5AC40;
+}
+
+.queue-root-running{
+}
+
+.queue-root-errors{
+    background-color: #EB6A6A40;
 }

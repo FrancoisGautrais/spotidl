@@ -1,8 +1,22 @@
+from abc import ABCMeta, abstractmethod
 
 def indent(i):
     return "  "*i
 
-class ArtistEntryShort:
+class Jsonable:
+    @abstractmethod
+    def json(self):
+        raise NotImplementedError("")
+
+class JsonArray(list):
+    def __init__(self):
+        super().__init__()
+
+    def json(self):
+        return list(map(lambda x: (x.json() if isinstance(x, Jsonable) else x), self))
+
+
+class ArtistEntryShort(Jsonable):
     def __init__(self, js):
         if js:
             self.name=js["name"]
@@ -21,7 +35,9 @@ class ArtistEntryShort:
     def __repr__(self): return str(self)
     def str(self): return str(self)
 
-class TrackEntry:
+
+
+class TrackEntry(Jsonable):
     def __init__(self, track):
         if track:
             self.artists=list(map(lambda x: ArtistEntryShort(x), track["artists"]))
@@ -63,7 +79,7 @@ class TrackEntry:
     def str(self,i ):
         return indent(i)+" feat ".join(list(map(lambda x: x.name, self.artists)))+" - %s (%f s)"%(self.name, self.duration)
 
-class AlbumEntry(list):
+class AlbumEntry(list,Jsonable):
     def __init__(self):
         super().__init__()
         self.ids={}
@@ -103,7 +119,7 @@ class AlbumEntry(list):
         return indent(i)+self.name+"("+" feat ".join(list(map(lambda x: x.name, self.artists)))+") "+"\n"\
                         +"\n".join(list(map(lambda t: t.str(i+1), self)))
 
-class ArtistEntry:
+class ArtistEntry(Jsonable):
 
     def __init__(self):
         self.tracks=[]
@@ -143,7 +159,7 @@ class ArtistEntry:
             "name" : self.name
         }
 
-class TrackSet:
+class TrackSet(Jsonable):
     def __init__(self, tracks=[]):
         self.tracks=[]
         self.artists={}

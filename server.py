@@ -14,9 +14,12 @@ class DlServer(RESTServer):
         self.dl.start()
         self.route("GET", "/api/command/exit", self.api_exit)
         self.route("GET", "/api/command/count", self.api_count)
-        self.route("GET", "/api/command/done", self.api_done)
-        self.route("GET", "/api/command/running", self.api_running)
+        self.route("GET", "/api/command/running/cancel/*url", self.api_running_cancel)
+        self.route("GET", "/api/command/running/restart/*url", self.api_running_restart)
+
         self.route("GET", "/api/command/queue", self.api_queue)
+        self.route("GET", "/api/command/queue/remove/*url", self.api_queue_remove)
+        self.route("GET", "/api/command/queue/clear", self.api_queue_clear)
         self.route("GET", "/api/command/add/*url", self.api_add_get)
         self.route("POST", "/api/command/add", self.api_add_post)
         self.route("GET", "/api/command/list/*url", self.api_list_get)
@@ -36,14 +39,26 @@ class DlServer(RESTServer):
     def api_count(self, req : HTTPRequest, res : HTTPResponse):
         res.serv_json_ok(len(self.dl.fifo.data))
 
-    def api_done(self, req : HTTPRequest, res : HTTPResponse):
-        res.serv_json_ok(list(map(lambda x: x.json(), self.dl.done)))
+    def api_running_cancel(self, req: HTTPRequest, res: HTTPResponse):
+        self.dl.cancel_running(req.params["url"][-1])
+        res.serv_json_ok("Success")
+
+    def api_running_restart(self, req: HTTPRequest, res: HTTPResponse):
+        self.dl.restart_running(req.params["url"][-1])
+        res.serv_json_ok("Success")
+
 
     def api_queue(self, req : HTTPRequest, res : HTTPResponse):
-        res.serv_json_ok(list(map(lambda x: x.json(), self.dl.fifo.data) ))
+        res.serv_json_ok(self.dl.json())
 
-    def api_running(self, req : HTTPRequest, res : HTTPResponse):
-        res.serv_json_ok(list(map(lambda x: x.json(), self.dl.running.values()) ))
+    def api_queue_remove(self, req: HTTPRequest, res: HTTPResponse):
+        self.dl.remove_track(req.params["url"][-1])
+        res.serv_json_ok("Success")
+
+    def api_queue_clear(self, req: HTTPRequest, res: HTTPResponse):
+        self.dl.clear()
+        res.serv_json_ok("Success")
+
 
     def api_add_get(self, req : HTTPRequest, res : HTTPResponse):
         url = req.params["url"]
@@ -124,5 +139,4 @@ class DlServer(RESTServer):
             return TrackSet(TrackEntry(x))
         if isinstance(x, (list,tuple)):
             return TrackSet(list(map(lambda y: self.to_track_set(y), x)))
-
 

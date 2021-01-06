@@ -25,3 +25,12 @@ function modal_download(n, download_all, download_select){
     $("#download-n-tracks").html(n+"")
     $("#download-modal").modal("show")
 }
+
+
+function confirm(title, message, on_yes, on_no=null){
+    set_modal_callback('confirm_yes', on_yes)
+    set_modal_callback('confirm_no', on_no)
+    $("#confirm-title").html(title)
+    $("#confirm-content").html(message)
+    $("#confirm-modal").modal("show")
+}

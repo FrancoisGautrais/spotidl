@@ -1,57 +1,140 @@
-from TrackSet import TrackSet, TrackEntry
+import time
+import uuid
+
+from TrackSet import TrackSet, TrackEntry, JsonArray, Jsonable
 from SpotDlWrapper import SpotDlWrapper
 from fifio import FIFO
 from threading import Thread, Lock
+
+from worker import Worker
+
 
 class DownloaderException(Exception):
     def __init__(self, message):
         super().__init__(message)
         self.message=message
 
+class JsonError(Jsonable):
+
+    def __init__(self, track, reason):
+        self.track=track
+        self.message=reason
+        self.time=time.time()
+
+    def json(self):
+        return {
+            "track": self.track.json(),
+            "message": self.message,
+            "time" : self.time,
+            "id" : str(uuid.uuid4())+str(self.time)
+        }
+
 class Downloader(Thread):
 
-    def __init__(self):
+    DONE_SIZE=1024
+    THREAD_TIMEOUT=3600 #1h
+    def __init__(self, nThreads=1):
         super().__init__()
         self.spot = SpotDlWrapper()
         self.fifo = FIFO()
-        self.lock=Lock()
-        self.do_exit=False
-        self.done=[]
-        self.running={}
+        self._lock=Lock()
+        self._done=JsonArray()
+        self._threads=JsonArray()
+        self._errors=JsonArray()
+        self._n_thread=nThreads
 
-    def exit(self):
-        self.lock.acquire()
-        self.do_exit=True
-        self.lock.release()
+    def running(self):
+        running = []
+        for i in range(len(self._threads)):
+            running.append(self._threads[i].json())
+        return running
 
-    def run(self):
-        while True:
-            self.lock.acquire()
-            ex = self.do_exit
-            self.lock.release()
-            if ex: return
+    def json(self):
+        return {
+            "errors" : self._errors.json(),
+            "running" : self.running(),
+            "done" : self._done.json(),
+            "queue" : self.fifo.json(),
+            "queue_count" : len(self.fifo.data),
+            "errors_count" : len(self._errors),
+            "running_count" : len(self._threads),
+            "done_count" : len(self._done)
+        }
 
-            track = self.fifo.pop(True)
-            if not track:
-                continue
+    def start(self):
+        for i in range(self._n_thread):
+            self._threads.append(Worker(i, self))
 
-            self.running[track.url] = track
-            try:
-                self.spot.download(track)
-            except:
-                print("Erreur impossible de télécharger")
+    def error(self, track, reason="Unknown"):
+        self._errors.append(JsonError(track, reason))
 
-            self.fifo.lock.acquire()
-            del self.running[track.url]
-            self.done.append(track)
-            if len(self.done)>128: self.done=self.done[-128:]
-            self.fifo.lock.release()
+    def check_alive(self):
+        for i in range(len(self._threads)):
+            th = self._threads[i]
+            if not th.is_alive():
+                self._threads[i]=Worker(i, self)
+            elif th.get_track_time>Downloader.THREAD_TIMEOUT:
+                th.set_frozen(True)
+                track = th.get_current_track()
+                th.raise_exception()
+                th.join()
+                self.error(track, "TIMEOUT ERROR")
+                self._threads[i]=Worker(i, self)
+
+
+    def lock(self):
+        self._lock.acquire()
+
+    def unlock(self):
+        self._lock.release()
+
+    def done(self, track):
+        self.lock()
+        self._done.append(track)
+        if len(self._done)>=Downloader.DONE_SIZE:
+            self._done=self._done[-Downloader.DONE_SIZE:]
+        self.unlock()
 
     def clear(self):
-        self.fifo.lock.acquire()
-        self.fifo.data=[]
-        self.fifo.lock.release()
+        self.lock()
+        self.fifo.clear()
+        self.unlock()
 
+    def pop(self):
+        self.lock()
+        y = self.fifo.pop()
+        self.unlock()
+        return y
+
+    def _restart_running(self, trackid, restart):
+        ok=False
+        for i  in range(len(self._threads)):
+            thd=self._threads[i]
+            trid = thd.get_current_url().split("/")[-1]
+            if trid == trackid:
+                thd.set_frozen(True)
+                track = thd.get_current_track()
+                thd.raise_exception()
+                #thd.join()
+
+
+                if restart:
+                    self.prepend(track)
+
+                self._threads[i]=Worker(i, self)
+                return True
+        return ok
+
+    def restart_running(self, url):
+        return self._restart_running(url, True)
+
+    def cancel_running(self, url):
+        return self._restart_running(url, True)
+
+    def prepend(self, track):
+        self.lock()
+        v = self.fifo.prepend(track)
+        self.unlock()
 
     def remove_track(self, urls):
         if isinstance(urls, (list, tuple)):
@@ -62,8 +145,9 @@ class Downloader(Thread):
         self.fifo.lock.acquire()
         for i in range(len(self.fifo.data)):
             x=self.fifo.data[i]
-            if x.url==urls:
+            if x and x.url and x.url.split("/")[-1]==urls:
                 self.fifo.data[i]=None
+                print("-------------------- remove !")
         self.fifo.lock.release()
 
     def _add_track(self, tracks):

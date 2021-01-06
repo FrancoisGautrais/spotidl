@@ -66,18 +66,17 @@ class Template {
             e.prop("id", nid)
             root.find("[for="+oid+"]").prop("for", nid)
         })
-
         //find ne regarde pas dans l'lélement racine il faut passer par un parent pour l'utiliser
         var fakeroot=$("<div></div>");
+
         fakeroot.append(root)
         fakeroot.find("[data-template]").each(function(i,e){
             var elem =$(e)
             var attr=elem.attr("data-var")
             var ndata = attr=="."?data:(data?data[attr]:null);
-            if(ndata){
+            if(ndata!=undefined){
                 if(Array.isArray(ndata)){
                     var src = elem;
-                    console.log(src.parent())
                     for(var j in ndata){
                         var nndata = ndata[j];
                         var dst = Template.instanciate(src.attr("data-template"), nndata)

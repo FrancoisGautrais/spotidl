@@ -1,7 +1,10 @@
 import time
 from threading import Thread, Lock
 
-class FIFO:
+from TrackSet import Jsonable, JsonArray
+
+
+class FIFO(Jsonable):
 
     def __init__(self):
         self.data=[]
@@ -12,6 +15,16 @@ class FIFO:
         self.data.append(url)
         self.lock.release()
 
+    def prepend(self, track):
+        self.lock.acquire()
+        self.data=[track]+self.data
+        self.lock.release()
+
+    def json(self):
+        v = []
+        for x in self.data:
+            v.append(x.json() if x is not None else None)
+        return v
 
     def peak(self):
         if not len(self.data): return None
@@ -31,3 +44,8 @@ class FIFO:
                 return x
             else:
                 time.sleep(0.1)
+
+    def clear(self):
+        self.lock.acquire()
+        self.data=[]
+        self.lock.release()

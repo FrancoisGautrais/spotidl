@@ -19,7 +19,6 @@ class DlAPI
                 if(!(!_a && _b=="error" && _c==""))
                 {
                     var resp = JSON.parse(_a.responseText);
-                    console.log(resp)
                     error( (errorText?errorText:"Erreur")+ "( "+resp.code+" : '"+resp.message+"') : " + resp.data)
                 }else{
                     error( "Erreur : Le serveur a clos la connexion")
@@ -109,10 +108,25 @@ class DlAPI
         return this.ajax_get("list/"+url, opt)
     }
 
+    cancel_running(url, opt={}){
+        return this.ajax_get("running/cancel/"+url, opt)
+    }
+
+    restart_running(url, opt={}){
+        return this.ajax_get("running/cancel/"+url, opt)
+    }
+
+    remove_queue(url, opt={}){
+        return this.ajax_get("queue/remove/"+url, opt)
+    }
+
+    clear_queue(opt={}){
+        return this.ajax_get("queue/clear", opt)
+    }
+
     add_post(data, opt={}){
         return this.ajax_post("add", data, opt)
     }
-
 
     list_file(url, opt={}){
         return this.ajax_post("list", data, opt)

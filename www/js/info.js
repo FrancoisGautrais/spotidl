@@ -41,7 +41,6 @@ function hide_info_tab(){
 
 function toggle_table(type, id){
     var elem=null;
-    console.log("id", id)
     if(type=="artist") elem=$("tbody[data-artistid='"+id+"'][data-type='artist-content']")
     if(type=="album") elem=$("table[data-albumid='"+id+"'][data-type='album-content']")
     elem.toggle()
