@@ -58,7 +58,10 @@ th{
     width: 100%;
 }
 
-
+.root-control-btn {
+    margin-bottom: 20px;
+    margin-right: 20px;
+}
 
 
 
@@ -78,6 +81,7 @@ th{
     border-color: #000;
     border-width: 2px;
 }
+
 .queue-root > td {
     border-color: #0000;
 }

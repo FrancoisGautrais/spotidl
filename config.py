@@ -3,17 +3,33 @@
 
 
 
+
+
 import os
 
-DB_FILE="db.json"
-USER_DIR="user"
-WWW_DIR = "www"
-PORT=8080
-OUTPUT_DIR="out"
-OUTPUT_FORMAT="{artist}/{album}/{track-number}-{track-name}.{output-ext}"
-FFMPEG="ffmpeg"
-try:
-    with open("config.cfg") as f:
-        exec(f.read())
-except:
-    pass
+
+
+from http_server import config
+
+DEFAULT_CONFIG={
+    "server" : {
+        "www" :  "www",
+        "address" : "localhost",
+        "port" : 8080
+    },
+    "output" : {
+        "extension" : "mp3",
+        "format" : "{artist}/{album}/{track-number}-{track-name}.{output-ext}",
+        "dir" : "out"
+    },
+    "utils" : {
+        "ffmpeg" : "ffmpeg"
+    }
+}
+
+from http_server.config import cfg as config
+def init(x=[]):
+    if not isinstance(x, (list, tuple)): x=[x]
+    config.init(DEFAULT_CONFIG, x)
+
+

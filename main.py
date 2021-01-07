@@ -1,5 +1,7 @@
 
 import logging
+
+
 import config
 import sys
 import os
@@ -48,9 +50,10 @@ while(True) :
 
 
 """
+import config
+config.init("config.json")
 
 from server import DlServer
-
 dl = DlServer()
-dl.listen(config.PORT)
+dl.listen(config.config["server.port"])
 

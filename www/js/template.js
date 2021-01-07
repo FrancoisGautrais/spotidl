@@ -1,4 +1,4 @@
-String.prototype.formatUnicorn = String.prototype.formatUnicorn ||
+/*String.prototype.formatUnicorn = String.prototype.formatUnicorn ||
 function () {
     "use strict";
     var str = this.toString();
@@ -13,9 +13,10 @@ function () {
             str = str.replace(new RegExp("\\{" + key + "\\}", "gi"), args[key]);
         }
     }
-
     return str;
-};
+};*/
+
+
 
 class Utils
 {
@@ -56,7 +57,8 @@ class Template {
 
     static instanciate(templateid, data={}){
         var templateText = $("#"+templateid)[0].innerHTML
-        templateText=templateText.formatUnicorn(data)
+        //templateText=templateText.formatUnicorn(data)
+        templateText=Mustache.render(templateText, data)
         var root =$(templateText)
 
         root.find("[id]").each(function(i,e){

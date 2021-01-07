@@ -1,15 +1,8 @@
 [UI]
     - Gestion en cas de blocage
-
-
+    - Palette de couleur
     [Queue]
-        - Ajout de bouton de:
-            - Tout déplier/replier
-        - Visualisation:
-        - Verifier les marges entre les composants
-        - Changer allure bouton cocher/décocher
-        Ajout de bouton pour:
-            - Effacer les erreurs et les finis
+        - Changer allure bouton tout cocher/décocher
 
 
     [Search]
@@ -19,28 +12,24 @@
             - Recherche avancé par titre, artiste ou album
 
     [Selection]
-        - Ajout de bouton de:
-            - Tout décocher
-            - Tout cocher
-            - Tout déplier/replier
         - Mode d'afficahge playlist (sans arborescence)
         - Choix du mode d'affichage (playlist ou arborescence)
 
+    [page de login]
+
+
 [Server]
+
     [Données]
+        - Gestion des utilisateurs
+
         - Ajout d'entrée d'api pour
-            -Récupérer tous l'état des différentes files d'attentes
             -Recherche dans spotify par titre artiste ou album
             -Gestion des liens spotify de playlist
             -Gestion de la fille d'attente
                 - progression
-                - temps par tache
                 - redémarrage (/api/command/running/#id/restart)
                 - annulation (/api/command/running/#id/cancel)
-                - permettre de savoir si le thread est actif
-
-        -Modification de:
-            -/api/command/running : Permettre de savoir depuis combien de temps la tache est lancé et (si possible) d'avoir un pourcentage de progression
 
     [Log]
         - Logger les erreur (stderr) du thread

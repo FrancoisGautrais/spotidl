@@ -27,6 +27,7 @@ function show_results(data){
     console.log("TEMPLATE", tpl)
     $("#template-root").empty()
     $("#template-root").append(tpl)
+    info_fold_all();
     show_info_tab();
 }
 
@@ -61,6 +62,7 @@ function get_selected_tracks(){
     var out=[]
     $("input[data-type=track-checkbox]:checked").each(function(i,e){
         var url = $(e).data("url");
+        console.log("url", url, RESULTS[url], $(e))
         out.push(RESULTS[url])
     })
     return out
@@ -74,4 +76,28 @@ function download_selected(){
 
 function cancel_selected(){
     $("#template-root").empty()
+}
+
+function info_unfold_all(){
+    var btn = $(".toggle-artist, .toggle-album").each(function(i, e){
+        e=$(e);
+        if(e.find("i").html()!="expand_more")
+            e.click()
+    })
+}
+
+function info_fold_all(){
+    var btn = $(".toggle-artist, .toggle-album").each(function(i, e){
+        e=$(e);
+        if(e.find("i").html()=="expand_more")
+            e.click()
+    })
+}
+
+function info_select_all(){
+    $(".track-checkbox").prop("checked", true)
+}
+
+function info_unselect_all(){
+    $(".track-checkbox").prop("checked", false)
 }

@@ -19,22 +19,21 @@
 
 <template id="template-queue-elem">
   <tr>
-    <td>{name}</td>
-    <td>{album}</td>
-    <td>{artist}</td>
-    <td>{duration}</td>
-    <td><a onclick="queue_elem_remove('{url}')"><i class="material-icons">delete</i></a></td>
+    <td>{{name}}</td>
+    <td>{{album}}</td>
+    <td>{{artist}}</td>
+    <td>{{duration}}</td>
+    <td><a onclick="queue_elem_remove('{{url}}')"><i class="material-icons">delete</i></a></td>
   </tr>
 </template>
-
 <template id="template-queue-table">
   <div class="queue-root queue-root-queue">
     <a class="toggle-queue"  onclick="toggle_queue('queue')" data-id="a-queue">
         <i class="material-icons">expand_more</i>
     </a>
-    <span class="queue-title">File d'attente ({queue_count}) </span>
+    <span class="queue-title">File d'attente ({{queue_count}}) </span>
     <div data-id="queue-queue">
-      <a class="control-btn-queue btn btn-danger"  onclick="queue_clear()">Tout effacer</a>
+      <a class="control-btn-queue btn btn-danger"  onclick="queue_clear_queue()">Tout effacer</a>
       <table class="table">
       <thead>
         <tr>
@@ -56,10 +55,10 @@
 
 <template id="template-queue-done-elem">
   <tr>
-    <td>{name}</td>
-    <td>{album}</td>
-    <td>{artist}</td>
-    <td>{duration}</td>
+    <td>{{name}}</td>
+    <td>{{album}}</td>
+    <td>{{artist}}</td>
+    <td>{{duration}}</td>
   </tr>
 </template>
 
@@ -68,34 +67,38 @@
     <a class="toggle-queue"  onclick="toggle_queue('done')" data-id="a-done">
         <i class="material-icons">expand_more</i>
     </a>
-    <span class="queue-title">Finis ({done_count})</span>
-    <table class="table" data-id="queue-done">
-      <thead>
-        <tr>
-          <th scope="col">Titre</th>
-          <th scope="col">Album</th>
-          <th scope="col">Artiste</th>
-          <th scope="col">Durée</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr data-template="template-queue-done-elem" data-var="done"></tr>
-      </tbody>
-    </table>
+    <span class="queue-title">Finis ({{done_count}})</span>
+
+    <div data-id="queue-done">
+      <a class="control-btn-queue btn btn-danger"  onclick="queue_clear_done()">Tout effacer</a>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Titre</th>
+            <th scope="col">Album</th>
+            <th scope="col">Artiste</th>
+            <th scope="col">Durée</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-template="template-queue-done-elem" data-var="done"></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
 <template id="template-queue-running-name">
-  <td><span  class="{class}">{artist}/{album}/{name}({duration})</span></td>
+  <td><span  class="{{class}}">{{artist}}/{{album}}/{{name}}({{duration}})</span></td>
 </template>
 
 <template id="template-queue-running-elem">
   <tr>
-    <td>{id}</td>
+    <td>{{id}}</td>
     <td data-template="template-queue-running-name" data-var="track"></td>
-    <td>{state}</td>
-    <td>{track_time}</td>
-    <td>{progress}</td>
+    <td>{{state}}</td>
+    <td>{{track_time}}</td>
+    <td>{{progress}}</td>
   </tr>
 </template>
 
@@ -104,7 +107,7 @@
     <!--<a class="toggle-queue"  onclick="toggle_queue('running')" data-id="a-running">
         <i class="material-icons">expand_more</i>
     </a>-->
-    <span class="queue-title">En cours ({running_count})</span>
+    <span class="queue-title">En cours ({{running_count}})</span>
     <div> <!--data-id="queue-running"-->
 
       <table class="table" >
@@ -127,16 +130,16 @@
 
 
 <template id="template-queue-errors-name">
-  <td>{artist}/{album}/{name}({duration})</td>
+  <td>{{artist}}/{{album}}/{{name}}({{duration}})</td>
 </template>
 
 <template id="template-queue-errors-elem">
   <tr>
     <td data-template="template-queue-errors-name" data-var="track"></td>
-    <td>{message}</td>
-    <td>{progress}</td>
+    <td>{{message}}</td>
+    <td>{{progress}}</td>
     <td>
-      <a onclick="queue_errors_remove('{id}')"><i class="material-icons">delete</i></a>
+      <a onclick="queue_errors_remove('{{id}}')"><i class="material-icons">delete</i></a>
     </td>
   </tr>
 </template>
@@ -146,23 +149,28 @@
     <a class="toggle-queue"  onclick="toggle_queue('errors')" data-id="a-errors">
         <i class="material-icons">expand_more</i>
     </a>
-    <span class="queue-title">Erreurs ({errors_count})</span>
-    <table class="table" data-id="queue-errors">
-      <thead>
-        <tr>
-          <th scope="col">Piste</th>
-          <th scope="col">Message</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr data-template="template-queue-errors-elem" data-var="errors"></tr>
-      </tbody>
-    </table>
+    <span class="queue-title">Erreurs ({{errors_count}})</span>
+
+    <div data-id="queue-errors">
+      <a class="control-btn-queue btn btn-danger"  onclick="queue_clear_errors()">Tout effacer</a>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Piste</th>
+            <th scope="col">Message</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-template="template-queue-errors-elem" data-var="errors"></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
 <template id="template-queue-root">
+  <a class="root-control-btn btn btn-danger"  onclick="queue_clear_all()">Tout effacer</a>
   <div data-template="template-queue-running-table" ></div>
   <div data-template="template-queue-table"></div>
   <div data-template="template-queue-done-table"></div>

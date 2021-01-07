@@ -25,8 +25,9 @@ class SpotDlWrapper:
     def __init__(self, init=True):
         self.spotipy=None
         self.tool=None
-        self.dir=config.OUTPUT_DIR
-        self.format=config.OUTPUT_FORMAT
+        self.dir=config.config["output.dir"]
+        self.format=config.config["output.format"]
+        self.ext=config.config["output.extension"]
         self.completeFormat=os.path.join(self.dir, self.format)
         if init: self.init()
 
@@ -51,7 +52,7 @@ class SpotDlWrapper:
         filename = spotdl.metadata.format_string(
             self.completeFormat,
             metadata,
-            output_extension="mp3",
+            output_extension=self.ext,
             )
 
         os.makedirs(os.path.dirname(filename) or ".", exist_ok=True)

@@ -100,6 +100,16 @@ class Downloader(Thread):
         self.fifo.clear()
         self.unlock()
 
+    def clear_errors(self):
+        self.lock()
+        self._errors = []
+        self.unlock()
+
+    def clear_done(self):
+        self.lock()
+        self._errors=[]
+        self.unlock()
+
     def pop(self):
         self.lock()
         y = self.fifo.pop()

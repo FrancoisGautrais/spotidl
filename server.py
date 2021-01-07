@@ -19,17 +19,21 @@ class DlServer(RESTServer):
 
         self.route("GET", "/api/command/queue", self.api_queue)
         self.route("GET", "/api/command/queue/remove/*url", self.api_queue_remove)
-        self.route("GET", "/api/command/queue/clear", self.api_queue_clear)
+        self.route("GET", "/api/command/queue/clear/all", self.api_queue_clear_all)
+        self.route("GET", "/api/command/clear/queue", self.api_queue_clear_queue)
+        self.route("GET", "/api/command/clear/errors", self.api_queue_clear_errors)
+        self.route("GET", "/api/command/clear/done", self.api_queue_clear_done)
+        self.route("GET", "/api/command/clear/all", self.api_queue_clear_all)
         self.route("GET", "/api/command/add/*url", self.api_add_get)
         self.route("POST", "/api/command/add", self.api_add_post)
         self.route("GET", "/api/command/list/*url", self.api_list_get)
         self.route("POST", "/api/command/list", self.api_list_post)
-        self.static("/", "www")
-        self.route_file_gen("GET", "/", "www/index.html", needAuth=False)
-        self.route_file_gen("GET", "/queue", "www/queue.html", needAuth=False)
-        self.route_file_gen("GET", "/add", "www/search.html", needAuth=False)
-        self.static_gen("GET", "/gen", "www/gen")
 
+        self.precache("www")
+        self.static("/", "www", cached=True)
+        self.route_file_meta("GET", "/test", "www/test.html", needAuth=False)
+        self.route_file_meta("GET", "/", "www/index.html", needAuth=False)
+        self.static_gen("GET", "/gen", "www/gen")
 
     def api_exit(self, req : HTTPRequest, res : HTTPResponse):
         res.serv_json_ok(None)
@@ -55,10 +59,23 @@ class DlServer(RESTServer):
         self.dl.remove_track(req.params["url"][-1])
         res.serv_json_ok("Success")
 
-    def api_queue_clear(self, req: HTTPRequest, res: HTTPResponse):
+    def api_queue_clear_queue(self, req: HTTPRequest, res: HTTPResponse):
         self.dl.clear()
         res.serv_json_ok("Success")
 
+    def api_queue_clear_errors(self, req: HTTPRequest, res: HTTPResponse):
+        self.dl.clear_errors()
+        res.serv_json_ok("Success")
+
+    def api_queue_clear_done(self, req: HTTPRequest, res: HTTPResponse):
+        self.dl.clear_done()
+        res.serv_json_ok("Success")
+
+    def api_queue_clear_all(self, req: HTTPRequest, res: HTTPResponse):
+        self.dl.clear_done()
+        self.dl.clear_errors()
+        self.dl.clear()
+        res.serv_json_ok("Success")
 
     def api_add_get(self, req : HTTPRequest, res : HTTPResponse):
         url = req.params["url"]

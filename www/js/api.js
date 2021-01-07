@@ -121,7 +121,19 @@ class DlAPI
     }
 
     clear_queue(opt={}){
-        return this.ajax_get("queue/clear", opt)
+        return this.ajax_get("clear/queue", opt)
+    }
+
+    clear_all(opt={}){
+        return this.ajax_get("clear/all", opt)
+    }
+
+    clear_errors(opt={}){
+        return this.ajax_get("clear/errors", opt)
+    }
+
+    clear_done(opt={}){
+        return this.ajax_get("clear/done", opt)
     }
 
     add_post(data, opt={}){

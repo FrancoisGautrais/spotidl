@@ -112,6 +112,7 @@ function refresh(data=null, cont=false)
         return;
     }
     QUEUE_DATA=Object.assign({}, data)
+
     data=process_queue_input(data)
     console.log("data:", data)
     var tpl = Template.instanciate("template-queue-root", data);
@@ -132,14 +133,47 @@ function queue_elem_remove(url)
     })
 }
 
-function queue_clear()
+function queue_clear_queue()
 {
     var n=QUEUE_DATA?QUEUE_DATA.queue_count:null;
     if(n<=0) return;
-    confirm("Êtes vous sur ?", "Voulez vous vraiment supprimer toute la file d'attente ("+
+    confirm("Êtes vous sur ?", "Voulez vous vraiment supprimer toutes la file d'attente ("+
                     n+" fichiers) ?",
             function(){
             API.clear_queue({
+                success: function(){refresh();}
+            })
+        }
+    )
+}
+
+function queue_clear_running()
+{
+    API.clear_running({
+        success: function(){refresh();}
+    })
+}
+
+function queue_clear_errors()
+{
+    var n=QUEUE_DATA?QUEUE_DATA.errors_count:null;
+    if(n<=0) return;
+    confirm("Êtes vous sur ?", "Voulez vous vraiment supprimer toutes les erreurse ("+
+                    n+" éléments) ?",
+            function(){
+            API.clear_errors({
+                success: function(){refresh();}
+            })
+        }
+    )
+}
+
+function queue_clear_all()
+{
+    confirm("Êtes vous sur ?", "Voulez vous vraiment supprimer la file d'attente"+
+                " toutes les erreurs et la liste des éléments téléchargés ?",
+            function(){
+            API.clear_all({
                 success: function(){refresh();}
             })
         }
