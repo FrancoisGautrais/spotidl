@@ -123,14 +123,14 @@ function refresh(data=null, cont=false)
     QUEUE_DATA=Object.assign({}, data)
 
     data=process_queue_input(data)
-    console.log("data:", data)
+    console.log("data-refresh:", data)
     var tpl = Template.instanciate("template-queue-root", data);
     restore_queue_table_visibility(tpl)
     $("#queue-root").empty()
     $("#queue-root").append(tpl)
     if(cont){
         setTimeout(function(){
-            refresh(null, true)
+            update_running(null, true)
         },QUEUE_REFRESH)
     }
 }
@@ -150,20 +150,28 @@ function update_running(data=null, cont=false)
     if(data==null){
         API.running({
             success: function(data){
-                refresh(data, cont);
+                update_running(data, cont);
             }
         })
         return;
     }
     QUEUE_DATA=Object.assign({}, data)
 
-    data=process_running_input(data)
+    console.log("data-upoate-running:", data)
+    data=process_input_running(data)
     var changed = is_running_file_change(data)
     CURRENT_RUNNING=data
     if(changed){
-        refresh()
+        console.log("Running changed")
+        refresh(null, true)
     }else{
-
+        console.log("Running  not changed")
+        for(var i in data){
+            var r = data[i]
+            $("#queue-running-state-"+r.id).html(r.state)
+            $("#queue-running-time-"+r.id).html(r.track_time)
+            $("#queue-running-progress-"+r.id).html(r.progress)
+        }
 
         if(cont){
             setTimeout(function(){

@@ -101,7 +101,7 @@ class Worker(ExceptionThread):
         self._start_track_time=0
         self.start()
         self._state=Worker.STATE_IDLE
-        self.progress=DownloadProgress()
+        self.progress=DownloadProgress(self)
 
 
     def get_current_track(self):

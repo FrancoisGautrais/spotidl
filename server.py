@@ -36,9 +36,12 @@ class DlServer(RESTServer):
         self.static("/", www, cached=True)
         self.route_file_meta("GET", "/test", "%s/test.html" % www, needAuth=False)
         #self.route_file("GET", "/test", "www/test.html", needAuth=False)
-        #self.route_file_meta("GET", "/", "%s/index.html" % www, needAuth=False)
+        #self.route_file("GET", "/", "%s/index.html" % www, needAuth=False)
         self.route_file_meta("GET", "/", "%s/index.html" % www,
                              needAuth=False, cached=False)
+
+        #self.route_file_gen("GET", "/", "%s/index.html" % www,
+        #                     needAuth=False)
         self.static_gen("GET", "/gen", "%s/gen" % www)
 
     def api_exit(self, req : HTTPRequest, res : HTTPResponse):
