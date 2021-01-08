@@ -20,7 +20,8 @@ DEFAULT_CONFIG={
     "output" : {
         "extension" : "mp3",
         "format" : "{artist}/{album}/{track-number}-{track-name}.{output-ext}",
-        "dir" : "out"
+        "dir" : "out",
+        "quality" : "best"
     },
     "utils" : {
         "ffmpeg" : "ffmpeg"

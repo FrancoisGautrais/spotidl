@@ -6,6 +6,29 @@ import time
 from http_server import log
 from spotdl.command_line.exceptions import NoYouTubeVideoFoundError
 
+class DownloadProgress:
+    def __init__(self, handler):
+        self.total_size=0
+        self.done=0
+        self.handler=handler
+
+    def get_percent(self):
+        return (100*self.done/self.total_size) if self.total_size else 0
+
+    def progress(self, x):
+        if isinstance(x, bytes): x=len(x)
+        self.done+=x
+        if self.done>=self.total_size and self.handler:
+            self.handler.on_download_finished(self)
+
+    def new_task(self, total):
+        self.total_size=total
+        self.done=0
+        if self.handler:
+            self.handler.on_download_start(self)
+
+    def is_finished(self):
+        return self.done>=self.total_size
 
 class ExceptionThread(threading.Thread):
     def __init__(self, index):
@@ -78,6 +101,7 @@ class Worker(ExceptionThread):
         self._start_track_time=0
         self.start()
         self._state=Worker.STATE_IDLE
+        self.progress=DownloadProgress()
 
 
     def get_current_track(self):
@@ -94,7 +118,7 @@ class Worker(ExceptionThread):
 
         try:
             self._state= Worker.STATE_FETCH_METADATA
-            self.spot.download(self.current_track)
+            self.spot.download(self.current_track, self.progress)
             self.fifo.done(self.current_track)
             self._state= Worker.STATE_IDLE
         except NoYouTubeVideoFoundError as err:
@@ -104,10 +128,16 @@ class Worker(ExceptionThread):
     def get_state(self):
         return self._state
 
+    def on_download_start(self, x):
+        self._state = Worker.STATE_DOWNLOADING
+
+    def on_download_finished(self, x):
+        pass
 
     def get_progress(self):
         if self._state==Worker.STATE_DOWNLOADING:
-            return 21.5
+            prg = self.progress.get_percent()
+            return prg
         if self._state==Worker.STATE_FETCH_METADATA:
             return 0
         return None
@@ -120,10 +150,12 @@ class Worker(ExceptionThread):
         return -1
 
     def json(self):
-        return {
+        js= {
             "id" : self._index,
             "track" : self.current_track.json() if self.current_track else None,
             "track_time" : self.get_track_time(),
             "state" : self.get_state(),
-            "progress" : self.get_progress()
+            "progress" : self.get_progress(),
+            "total_size" : self.progress.total_size
         }
+        return js

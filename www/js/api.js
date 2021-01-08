@@ -100,6 +100,10 @@ class DlAPI
         return this.ajax_get("queue", opt)
     }
 
+    running(opt={}){
+        return this.ajax_get("queue/running", opt)
+    }
+
     add_url(url, opt={}){
         return this.ajax_get("add/"+url, opt)
     }

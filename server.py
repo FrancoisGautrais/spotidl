@@ -1,15 +1,17 @@
+import config
 import spotipy
 from TrackSet import TrackSet, TrackEntry
 from http_server.restserver import RESTServer
 from http_server.httprequest import HTTPRequest, HTTPResponse
-
+from config import config as cfg
 from downloader import Downloader, DownloaderException
 
 
 class DlServer(RESTServer):
 
     def __init__(self):
-        super().__init__()
+        super().__init__(ip=cfg["server.address"])
+        www=cfg["server.www"]
         self.dl = Downloader()
         self.dl.start()
         self.route("GET", "/api/command/exit", self.api_exit)
@@ -18,6 +20,7 @@ class DlServer(RESTServer):
         self.route("GET", "/api/command/running/restart/*url", self.api_running_restart)
 
         self.route("GET", "/api/command/queue", self.api_queue)
+        self.route("GET", "/api/command/queue/running", self.api_queue_running)
         self.route("GET", "/api/command/queue/remove/*url", self.api_queue_remove)
         self.route("GET", "/api/command/queue/clear/all", self.api_queue_clear_all)
         self.route("GET", "/api/command/clear/queue", self.api_queue_clear_queue)
@@ -29,11 +32,14 @@ class DlServer(RESTServer):
         self.route("GET", "/api/command/list/*url", self.api_list_get)
         self.route("POST", "/api/command/list", self.api_list_post)
 
-        self.precache("www")
-        self.static("/", "www", cached=True)
-        self.route_file_meta("GET", "/test", "www/test.html", needAuth=False)
-        self.route_file_meta("GET", "/", "www/index.html", needAuth=False)
-        self.static_gen("GET", "/gen", "www/gen")
+        self.precache(www)
+        self.static("/", www, cached=True)
+        self.route_file_meta("GET", "/test", "%s/test.html" % www, needAuth=False)
+        #self.route_file("GET", "/test", "www/test.html", needAuth=False)
+        #self.route_file_meta("GET", "/", "%s/index.html" % www, needAuth=False)
+        self.route_file_meta("GET", "/", "%s/index.html" % www,
+                             needAuth=False, cached=False)
+        self.static_gen("GET", "/gen", "%s/gen" % www)
 
     def api_exit(self, req : HTTPRequest, res : HTTPResponse):
         res.serv_json_ok(None)
@@ -54,6 +60,9 @@ class DlServer(RESTServer):
 
     def api_queue(self, req : HTTPRequest, res : HTTPResponse):
         res.serv_json_ok(self.dl.json())
+
+    def api_queue_running(self, req : HTTPRequest, res : HTTPResponse):
+        res.serv_json_ok(self.dl.running())
 
     def api_queue_remove(self, req: HTTPRequest, res: HTTPResponse):
         self.dl.remove_track(req.params["url"][-1])

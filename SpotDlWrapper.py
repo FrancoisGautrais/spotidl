@@ -1,8 +1,9 @@
 import os
-
+from config import config as cfg
 import spotdl
 from spotdl.authorize.services import AuthorizeSpotify
 from spotdl.config import DEFAULT_CONFIGURATION
+from spotdl.encode.encoders import EncoderFFmpeg
 from spotdl.helpers import SpotifyHelpers
 from spotdl.metadata_search import MetadataSearch
 from spotdl.track import Track
@@ -38,14 +39,14 @@ class SpotDlWrapper:
         )
         self.tool=SpotifyHelpers(self.spotipy)
 
-    def download_track(self, track):
+    def download_track(self, track, progress):
         print("Fetching metadata for '%s'"%track)
         metadata = self.get_metadata(track)
-        return self.download_track_with_meta(metadata)
+        return self.download_track_with_meta(metadata, progress)
 
-    def download_track_with_meta(self, metadata):
+    def download_track_with_meta(self, metadata, progress):
         stream = metadata["streams"].get(
-               quality="best",
+               quality=config.config["output.quality"],
                 preftype="opus",
                 )
         track = Track(metadata)
@@ -57,12 +58,32 @@ class SpotDlWrapper:
 
         os.makedirs(os.path.dirname(filename) or ".", exist_ok=True)
         print("Dwonloading %s " % filename)
-        track.download_while_re_encoding(stream, filename)
+        #track.download_while_re_encoding(stream, filename)
+        self.download_while_re_encoding(track, stream, filename, progress)
 
         track.apply_metadata(filename)
 
         return TrackEntry(metadata)
 
+    def download_while_re_encoding(self, track, stream, filename, progress,
+                                   target_encoding=None,
+                                   encoder=EncoderFFmpeg(cfg["utils.ffmpeg"], False)):
+        total_chunks = track._calculate_total_chunks(stream["filesize"])
+        process = encoder.re_encode_from_stdin(
+            stream["encoding"],
+            filename,
+            target_encoding=target_encoding
+        )
+        response = stream["connection"]
+
+        progress.new_task(stream["filesize"])
+        while not progress.is_finished():
+            chunk = response.read(track._chunksize)
+            process.stdin.write(chunk)
+            progress.progress(chunk)
+
+        process.stdin.close()
+        process.wait()
 
     def get_metadata(self, track):
         subtracks = track.split("::")
@@ -110,26 +131,26 @@ class SpotDlWrapper:
         tmp["total"]=n
         return TrackSet(tmp["items"])
 
-    def _download(self, tracks):
+    def _download(self, tracks, progress):
         if isinstance(tracks, str):
             if tracks.startswith("https://open.spotify.com/track/"):
-                return self.download_track(tracks)
+                return self.download_track(tracks, progress)
             if tracks.startswith("https://open.spotify.com/artist/"):
-                return self._download(self.artist_tracks(tracks))
+                return self._download(self.artist_tracks(tracks), progress)
             if tracks.startswith("https://open.spotify.com/album/"):
-                return self._download(self.album_tracks(tracks))
+                return self._download(self.album_tracks(tracks), progress)
         if isinstance(tracks, TrackSet):
-            return self._download(tracks.tracks)
+            return self._download(tracks.tracks, progress)
         if isinstance(tracks, TrackEntry):
-            return self._download(tracks.url)
+            return self._download(tracks.url, progress)
         if isinstance(tracks, (list,tuple)):
             ts = TrackSet()
             for track in tracks:
-                ts.add_tracks(self.download_track(track.url))
+                self.download_track(track.url, progress)
             return ts
 
-    def download(self, tracks):
-        tracks=self._download(tracks)
+    def download(self, tracks, progress):
+        tracks=self._download(tracks, progress)
         if isinstance(tracks, TrackEntry):
             return TrackSet(tracks)
         if isinstance(tracks, TrackSet):

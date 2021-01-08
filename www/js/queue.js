@@ -73,6 +73,14 @@ function process_input_error(err){
     })
 }
 
+CURRENT_RUNNING=[]
+function process_queue_input(data){
+    for(var i in data){
+        data[i]=process_input_running(data[i])
+    }
+    return data
+}
+
 function process_queue_input(data){
     for(var i in data.errors){
         data.errors[i]=process_input_error(data.errors[i])
@@ -80,6 +88,7 @@ function process_queue_input(data){
     for(var i in data.running){
         data.running[i]=process_input_running(data.running[i])
     }
+    CURRENT_RUNNING=data.running
     for(var i in data.done){
         data.done[i]=process_input_track(data.done[i])
     }
@@ -123,6 +132,44 @@ function refresh(data=null, cont=false)
         setTimeout(function(){
             refresh(null, true)
         },QUEUE_REFRESH)
+    }
+}
+
+function is_running_file_change(data)
+{
+    if(CURRENT_RUNNING.length!=data.length) return true;
+    for(var i=0; i<data.length; i++){
+        if(data[i].url!=CURRENT_RUNNING[i].url)
+            return true
+    }
+    return false
+}
+
+function update_running(data=null, cont=false)
+{
+    if(data==null){
+        API.running({
+            success: function(data){
+                refresh(data, cont);
+            }
+        })
+        return;
+    }
+    QUEUE_DATA=Object.assign({}, data)
+
+    data=process_running_input(data)
+    var changed = is_running_file_change(data)
+    CURRENT_RUNNING=data
+    if(changed){
+        refresh()
+    }else{
+
+
+        if(cont){
+            setTimeout(function(){
+                update_running(null, true)
+            },QUEUE_REFRESH)
+        }
     }
 }
 
