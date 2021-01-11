@@ -1,7 +1,8 @@
 
 
-class _Parameters
+class ParametersTab
 {
+    static TASK_ID="ParameterInit"
     constructor(){
         this.db = new DataBind("parameters-div");
         this.config={}
@@ -73,6 +74,7 @@ class _Parameters
         API.get_config(this.config,{
             success:function(d){
                 self._load(d)
+                App.finished(ParametersTab.TASK_ID)
             }
         })
     }
@@ -149,6 +151,6 @@ class _Parameters
 
 var Config = null;
 
-Template.on_loaded(function(){
-    Config=new _Parameters();
-})
+App.enqueue_to_load(function(){
+    Config=new ParametersTab(ParametersTab.TASK_ID);
+}, ParametersTab.TASK_ID)

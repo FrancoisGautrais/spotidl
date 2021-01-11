@@ -1,8 +1,5 @@
 from abc import ABCMeta, abstractmethod
 
-def indent(i):
-    return "  "*i
-
 class Jsonable:
     @abstractmethod
     def json(self):
@@ -15,6 +12,68 @@ class JsonArray(list):
     def json(self):
         return list(map(lambda x: (x.json() if isinstance(x, Jsonable) else x), self))
 
+
+
+class ReferEntry(Jsonable):
+    def __init__(self, url, js, type):
+        self.url=url
+        self.js=js
+        self.type=type
+
+    def json(self):
+        return {
+            "url" : self.url,
+            "data" : self.js,
+            "type" : self.type
+        }
+
+class Refer:
+    def __init__(self):
+        self.data=JsonArray()
+
+    def add(self, x):
+        for i in x.data:
+            self.data.append(i)
+
+    def add_track(self, url, x):
+        self.data.append(ReferEntry(url, x.json(), "track"))
+
+    def add_artist(self, url, x):
+        name="None"
+        for k in x.artists:
+            name=k
+            break
+        self.data.append(ReferEntry(url, {
+            "name" : name
+        }, "artist"))
+
+
+    def add_album(self, url, x):
+        artist="None"
+        album="None"
+        for k in x.artists:
+            artist=k
+            for l in x.artists[k].albums:
+                album=l
+                if "year" in x.artists[k].albums[l]:
+                    year=x.artists[k].albums[l]["year"]
+                break
+            break
+        self.data.append(ReferEntry(url, {
+            "album" : album,
+            "artist" : artist
+        }, "album"))
+
+    def add_playlist(self, url, x):
+        self.data.append(ReferEntry(url, {
+        }, "playlist"))
+
+    def json(self):
+        return self.data.json()
+
+
+def indent(i):
+    return "  "*i
 
 class ArtistEntryShort(Jsonable):
     def __init__(self, js):
@@ -107,9 +166,11 @@ class AlbumEntry(list,Jsonable):
         super().__init__()
         self.ids={}
         self.name=None
+        self.year=None
         self.artists=[]
 
     def set_name(self, name): self.name=name
+    def set_year(self, year): self.year=year
 
     def add_artist(self, x):
         if isinstance(x, (list, tuple)):
@@ -187,11 +248,10 @@ class TrackSet(Jsonable):
         self.tracks=[]
         self.artists={}
         self.add_tracks(tracks)
-        self.refer=[]
+        self.refer=Refer()
 
     def add_refer(self, x):
-        if not isinstance(x, (list, tuple)): x=[x]
-        self.refer+=x
+        self.refer.add(x)
 
     def each(self, fct):
         for x in self.tracks:
@@ -224,7 +284,7 @@ class TrackSet(Jsonable):
         return {
             "artists" : list(map(lambda x: x.json(), self.artists.values())),
             "count" : len(self.tracks),
-            "refer" : self.refer
+            "refer" : self.refer.json()
         }
 
     def __str__(self): return self.str()

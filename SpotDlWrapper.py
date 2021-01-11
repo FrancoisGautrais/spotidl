@@ -12,7 +12,6 @@ from spotdl.helpers import SpotifyHelpers
 from spotdl.metadata_search import MetadataSearch
 from spotdl.track import Track
 
-import config
 from TrackSet import TrackSet, TrackEntry
 
 
@@ -57,7 +56,7 @@ class SpotDlWrapper:
 
     def download_track_with_meta(self, metadata, progress):
         stream = metadata["streams"].get(
-               quality=config.config["output.quality"],
+               quality=cfg["output.quality"],
                 preftype="opus",
                 )
         if(not stream):

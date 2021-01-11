@@ -4,9 +4,9 @@
 
     <input type="text" class="form-control" id="search-bar"
            placeholder="Entrez l'URL spotify d'un titre, d'un artiste oud'un album"
-           aria-label="" aria-describedby="basic-addon1" onkeyup="search(this)">
+           aria-label="" aria-describedby="basic-addon1" onkeyup="Search.search(this)">
     <div class="input-group-append">
-      <button class="btn btn-outline-secondary" type="button" onclick="on_send()"><i class="material-icons md-48">send</i></button>
+      <button class="btn btn-outline-secondary" type="button" onclick="Search.on_send()"><i class="material-icons md-48">send</i></button>
     </div>
   </div>
 
@@ -14,7 +14,7 @@
   <div class="input-group mb-3 hidden">
     <form enctype="multipart/form-data">
         <input class="btn btn-light" name="file" type="file" id="file-value" />
-        <input class="btn btn-success" type="button" onclick="on_upload()"  value="Envoyer" />
+        <input class="btn btn-success" type="button" onclick="Search.on_upload()"  value="Envoyer" />
     </form>
   </div>
 </div>
@@ -41,7 +41,7 @@
 
 
 <template id="template-album-short">
-  <div class="result-short result-short-album fond-color-2" onclick="on_send('{{url}}')">
+  <div class="result-short result-short-album fond-color-2" onclick="Search.on_send('{{url}}')">
       {{artists}} - {{name}} ({{date}})
   </div>
 </template>
@@ -52,7 +52,7 @@
 
 
 <template id="template-artist-short">
-    <div class="result-short result-short-artist fond-color-1 color-4" onclick="on_send('{{url}}')">
+    <div class="result-short result-short-artist fond-color-1 color-4" onclick="Search.on_send('{{url}}')">
         <img class="artist-image-short" src="{{image}}">
         {{name}}
     </div>
@@ -64,7 +64,7 @@
 
 
 <template id="template-track-short">
-  <div class="result-short result-short-track fond-color-3 color-4" onclick="on_send('{{url}}')">
+  <div class="result-short result-short-track fond-color-3 color-4" onclick="Search.on_send('{{url}}')">
       {{artist}} - {{name}}
   </div>
 </template>

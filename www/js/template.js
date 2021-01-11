@@ -134,7 +134,7 @@ class Template {
         }
     }
 
-    static on_loaded(fct){
+    static ready(fct){
         if(Template.is_init){
             fct();
         }else{

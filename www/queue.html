@@ -11,18 +11,19 @@
     <td>{{album}}</td>
     <td>{{artist}}</td>
     <td>{{duration}}</td>
-    <td><a onclick="queue_elem_remove('{{url}}')"><i class="material-icons">delete</i></a></td>
+    <td><a onclick="Queue.remove_element('{{url}}')"><i class="material-icons">delete</i></a></td>
   </tr>
 </template>
 
 <template id="template-queue-table">
   <div class="queue-root queue-root-queue fond-color-2">
-    <a class="toggle-queue"  onclick="toggle_queue('queue')" data-id="a-queue">
+  <div class="queue-root queue-root-queue fond-color-2">
+    <a class="toggle-queue"  onclick="Queue.toggle('queue')" data-id="a-queue">
         <i class="material-icons">expand_more</i>
     </a>
     <span class="queue-title">File d'attente ({{queue_count}}) </span>
     <div data-id="queue-queue">
-      <a class="control-btn-queue btn fond-color-1 color-4"  onclick="queue_clear_queue()">Tout effacer</a>
+      <a class="control-btn-queue btn fond-color-1 color-4"  onclick="Queue.clear_queue()">Tout effacer</a>
       <table class="table">
       <thead>
         <tr>
@@ -55,19 +56,19 @@
     <td class="color-4">{{album}}</td>
     <td class="color-4">{{artist}}</td>
     <td class="color-4">{{duration}}</td>
-    <td><i class="material-icons color-4" onclick="remove_done({{index}})">remove</i></td>
+    <td><i class="material-icons color-4" onclick="Queue.remove_done({{index}})">remove</i></td>
   </tr>
 </template>
 
 <template id="template-queue-done-table">
   <div class="queue-root queue-root-done fond-color-3">
-    <a class="toggle-queue "  onclick="toggle_queue('done')" data-id="a-done">
+    <a class="toggle-queue "  onclick="Queue.toggle('done')" data-id="a-done">
         <i class="material-icons ">expand_more</i>
     </a>
     <span class="queue-title color-4">Finis ({{done_count}})</span>
 
     <div data-id="queue-done">
-      <a class="control-btn-queue btn fond-color-1 color-4"  onclick="queue_clear_done()">Tout effacer</a>
+      <a class="control-btn-queue btn fond-color-1 color-4"  onclick="Queue.clear_done()">Tout effacer</a>
       <table class="table">
         <thead>
           <tr>
@@ -113,8 +114,8 @@
     </td>
 
     <td>
-      <i class="material-icons" onclick="restart_job('{{url}}')">refresh</i>
-      <i class="material-icons" onclick="cancel_job('{{url}}')">cancel</i>
+      <i class="material-icons" onclick="Queue.restart_job('{{url}}')">refresh</i>
+      <i class="material-icons" onclick="Queue.cancel_job('{{url}}')">cancel</i>
     </td>
   </tr>
 </template>
@@ -159,22 +160,22 @@
     <td class="color-4">{{message}}</td>
     <td class="color-4">{{progress}}</td>
     <td>
-      <a onclick="queue_errors_restart({{index}})"><i class="material-icons color-4">refresh</i></a>
-      <a onclick="queue_errors_manual({{index}})"><i class="material-icons color-4">add</i></a>
-      <a onclick="queue_errors_remove({{index}})"><i class="material-icons color-4">delete</i></a>
+      <a onclick="Queue.errors_restart({{index}})"><i class="material-icons color-4">refresh</i></a>
+      <a onclick="Queue.errors_manual({{index}})"><i class="material-icons color-4">add</i></a>
+      <a onclick="Queue.errors_remove({{index}})"><i class="material-icons color-4">delete</i></a>
     </td>
   </tr>
 </template>
 
 <template id="template-queue-errors-table">
   <div class="queue-root queue-root-errors fond-color-1">
-    <a class="toggle-queue"  onclick="toggle_queue('errors')" data-id="a-errors">
+    <a class="toggle-queue"  onclick="Queue.toggle('errors')" data-id="a-errors">
         <i class="material-icons">remove</i>
     </a>
     <span class="queue-title color-4">Erreurs ({{errors_count}})</span>
 
     <div data-id="queue-errors">
-      <a class="control-btn-queue btn fond-color-1 color-4"  onclick="queue_clear_errors()">Tout effacer</a>
+      <a class="control-btn-queue btn fond-color-1 color-4"  onclick="Queue.clear_errors()">Tout effacer</a>
       <table class="table">
         <thead>
           <tr>
@@ -192,7 +193,7 @@
 </template>
 
 <template id="template-queue-root">
-  <a class="root-control-btn btn fond-color-1 color-4"  onclick="queue_clear_all()">Tout effacer</a>
+  <a class="root-control-btn btn fond-color-1 color-4"  onclick="Queue.clear_all()">Tout effacer</a>
   <div data-template="template-queue-running-table" ></div>
   <div data-template="template-queue-table"></div>
   <div data-template="template-queue-done-table"></div>

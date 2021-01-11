@@ -3,7 +3,7 @@ import time
 
 from http_server import utils
 from http_server.sqlite_conn import SQConnector
-from config import config as cfg
+from config import cfg
 
 
 class BadUserException(Exception):
@@ -72,9 +72,9 @@ class User:
 
     def log_refer(self, refer):
         if not isinstance(refer, (list, tuple)): refer=[refer]
-        for url in refer:
+        for re in refer:
             self.conn.exec("insert into history values ('%s', '%s', '%s', %f)" % (
-                url, "refer", self.id, time.time()
+                json.dumps(re).replace("'", "°"), "refer", self.id, time.time()
             ))
         self.conn.commit()
 
@@ -82,16 +82,24 @@ class User:
     def log_tracks(self, tracks):
         for track in tracks:
             self.conn.exec("insert into history values ('%s', '%s', '%s', %f)" % (
-                track["url"], "track", self.id, time.time()
+                json.dumps(track).replace("'", "°"), "track", self.id, time.time()
             ))
         self.conn.commit()
 
     def get_log(self, type=None):
+        out=[]
         if not type:
-            return self.conn.exec("select url, type, timestamp from history where user='%s'"%self.id)
+            tmp=self.conn.exec("select data, type, timestamp from history where user='%s'"%self.id)
         else:
-            return self.conn.exec("select url, type, timestamp from history where user='%s' and type='%s'"%(
+            tmp=self.conn.exec("select data, type, timestamp from history where user='%s' and type='%s'"%(
                 self.id, type))
+        for x in tmp:
+            out.append({
+                "data" : json.loads(x[0].replace("°", "'")),
+                "type" : x[1],
+                "timestamp" : x[2]
+            })
+        return out
 
 
     def clear_logs(self):
@@ -193,7 +201,7 @@ class Connector(SQConnector):
                 permission text
                 ) """
     HISTORY_SCHEM="""create table history (
-                url text,
+                data text,
                 type text,
                 user text,
                 timestamp float

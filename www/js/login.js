@@ -36,7 +36,7 @@ class LoginPage
     }
 
     static init(){
-        Template.on_loaded(function(){
+        Template.ready(function(){
             Login=new LoginPage();
         })
     }

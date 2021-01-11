@@ -25,7 +25,6 @@ class SelectionTab {
 
 
     get_selected(){
-        console.log(this)
         var out={
             tracks: [],
             refer: this.refer
@@ -52,9 +51,9 @@ class SelectionTab {
                 Loading.close()
                 $("#info-list").hide()
                 $("#no-info-list").show()
-                this.dict_reulsts={}
-                this.results=[]
-                this.refer=[]
+                self.dict_reulsts={}
+                self.results=[]
+                self.refer=[]
             }
         });
         $("#template-root").empty()
@@ -125,7 +124,6 @@ class SelectionTab {
         if(this.mode_is_changing) return
         if(Array.isArray(data)){
             data={ artists: data, count: data.length, refer: this.refer}
-            alert("OK")
         }
         var out = data.count+" fichiers titre à la liste d'attente<br>"
         this.refer=data.refer
@@ -154,10 +152,6 @@ class SelectionTab {
         this._show_results(data)
     }
 
-
-
-
-
     show(){
         $("#info-tab-trigger").click()
     }
@@ -165,7 +159,6 @@ class SelectionTab {
     hide(){
         $("#info-tab-trigger").hide()
     }
-
 
 }
 

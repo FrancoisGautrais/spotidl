@@ -5,7 +5,7 @@ import uuid
 
 import config
 from http_server import log
-from TrackSet import TrackSet, TrackEntry, JsonArray, Jsonable
+from TrackSet import TrackSet, TrackEntry, JsonArray, Jsonable, Refer
 from SpotDlWrapper import SpotDlWrapper
 from fifio import FIFO
 from threading import Thread, Lock
@@ -17,6 +17,7 @@ class DownloaderException(Exception):
     def __init__(self, message):
         super().__init__(message)
         self.message=message
+
 
 class JsonError(Jsonable):
 
@@ -333,38 +334,50 @@ class Downloader:
         raise DownloaderException("Erreur Downloader.add_track() : type inattendu")
 
 
-    def _get_info(self, url):
+    def _get_info(self, url, refer):
         if isinstance(url, str):
             if url.startswith("https://open.spotify.com/track/"):
-                return self._get_info(self.spot.track(url))
+                track=self.spot.track(url)
+                if refer: refer.add_track(url, track)
+                return self._get_info(track, None)
             if url.startswith("https://open.spotify.com/artist/"):
-                return self._get_info(self.spot.artist_tracks(url))
+                tracks=self.spot.artist_tracks(url)
+                if refer: refer.add_artist(url, tracks)
+                return self._get_info(tracks, None)
             if url.startswith("https://open.spotify.com/album/"):
-                return self._get_info(self.spot.album_tracks(url))
+                tracks=self.spot.album_tracks(url)
+                if refer: refer.add_album(url, tracks)
+                return self._get_info(tracks, None)
             if url.startswith("https://open.spotify.com/playlist/"):
-                return self._get_info(self.spot.playlist_tracks(url))
+                tracks=self.spot.playlist_tracks(url)
+                if refer: refer.add_playlist(url, tracks)
+                return self._get_info(tracks, None)
 
             raise DownloaderException("add_track: la chaine passée (%s) n'est pas une url valide" % url)
         if isinstance(url, TrackSet):
-            return self._get_info(url.tracks)
+            return self._get_info(url.tracks, None)
         if isinstance(url, (list, tuple)):
             ts = TrackSet()
             for track in url:
                 ts.add_tracks(track)
             return ts
         if isinstance(url, dict):
-            return self._get_info(TrackEntry(dict))
+            return self._get_info(TrackEntry(dict), None)
         if isinstance(url, TrackEntry):
             return url
 
         raise DownloaderException("add_track: le type passé (%s) est inattendu " % type(url).__name__)
 
     def get_info(self, url):
-        tracks=self._get_info(url)
-        tracks.add_refer(url)
+        refer=Refer()
+        tracks=self._get_info(url, refer)
+
         if isinstance(tracks, TrackEntry):
-            return TrackSet(tracks)
+            ts= TrackSet(tracks)
+            ts.add_refer(refer)
+            return ts
         if isinstance(tracks, TrackSet):
+            tracks.add_refer(refer)
             return tracks
 
         raise DownloaderException("Erreur Downloader.get_info() : type inattendu")

@@ -217,3 +217,72 @@ function dict_compare(d1, d2){
     }
     return true
 }
+
+
+class Application{
+    constructor(){
+        this.params = Application.parse_query_string(window.location.search.substring(1))
+        this._is_init=false;//template
+        this._is_loaded=false; //load
+        this._to_load={}
+        this._ready={}
+    }
+
+    call_ready(){
+        for(var k in this._ready){
+            this._ready[k]()
+        }
+    }
+
+    finished(id){
+        delete this._to_load[id];
+        if(!this._to_load.length){
+            this._is_loaded=true;
+            this.call_ready()
+        }
+    }
+
+    enqueue_to_load(x, id){
+        if(this._is_init){
+            x();
+        }else{
+            this._to_load[id]=x
+        }
+    }
+
+    on_template_init(){
+        this._is_init=true;
+        for(var id in this._to_load){
+            this._to_load[id]();
+        }
+    }
+
+    static parse_query_string(query) {
+        if(query=="") return {}
+        var vars = query.split("&");
+        var query_string = {};
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            var key = decodeURIComponent(pair[0]);
+            var value = decodeURIComponent(pair[1]);
+            // If first entry with this name
+            if (typeof query_string[key] === "undefined") {
+              query_string[key] = decodeURIComponent(value);
+              // If second entry with this name
+            } else if (typeof query_string[key] === "string") {
+              var arr = [query_string[key], decodeURIComponent(value)];
+              query_string[key] = arr;
+              // If third or later entry with this name
+            } else {
+              query_string[key].push(decodeURIComponent(value));
+            }
+        }
+        return query_string;
+    }
+
+}
+var App = new Application();
+
+Template.ready(function(){
+    App.on_template_init();
+})
