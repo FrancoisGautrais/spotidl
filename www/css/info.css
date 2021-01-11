@@ -1,0 +1,49 @@
+.toggle-album{
+    margin-left: 40px;
+    color: black;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
+
+.toggle-album > i {
+    font-size: 32pt;
+}
+
+
+.action-button {
+    margin-left: 24px;
+}
+.select-album {
+    font-size: 16pt;
+}
+
+.toggle-artist{
+    color: black;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
+
+.toggle-artist > i {
+    font-size: 32pt;
+}
+
+.select-artist {
+    font-size: 18pt;
+}
+
+
+#template-root > div {
+    width: 100%;
+}
+
+.root-control-btn {
+    margin-bottom: 20px;
+    margin-right: 20px;
+}
+
+
+.select-title {
+    margin-left: 120px;
+    width: calc(100% - 120px);
+}
+

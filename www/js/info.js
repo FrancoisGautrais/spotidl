@@ -1,5 +1,5 @@
 var RESULTS={}
-
+var TMP=null
 function show_results(data){
     var out = data.count+" fichiers titre à la liste d'attente<br>"
     data=data.artists;
@@ -23,12 +23,14 @@ function show_results(data){
             }
         }
     }
+    TMP=data
     var tpl = Template.instanciate("template-allartists", data);
-    console.log("TEMPLATE", tpl)
     $("#template-root").empty()
     $("#template-root").append(tpl)
     info_fold_all();
     show_info_tab();
+    $("#info-list").show()
+    $("#no-info-list").hide()
 }
 
 
@@ -62,7 +64,6 @@ function get_selected_tracks(){
     var out=[]
     $("input[data-type=track-checkbox]:checked").each(function(i,e){
         var url = $(e).data("url");
-        console.log("url", url, RESULTS[url], $(e))
         out.push(RESULTS[url])
     })
     return out
@@ -70,12 +71,22 @@ function get_selected_tracks(){
 
 function download_selected(){
     var data = get_selected_tracks();
-    API.add_post(data);
+    Loading.open();
+    API.add_post(data,{
+        success: function(d){
+            toast(d.count+" fichiers ajoutés")
+            Loading.close()
+            $("#info-list").hide()
+            $("#no-info-list").show()
+        }
+    });
     $("#template-root").empty()
 }
 
 function cancel_selected(){
     $("#template-root").empty()
+    $("#info-list").hide()
+    $("#no-info-list").show()
 }
 
 function info_unfold_all(){

@@ -39,6 +39,8 @@ class ArtistEntryShort(Jsonable):
 
 class TrackEntry(Jsonable):
     def __init__(self, track):
+        self.failcount=0
+        self.youtube_url=None
         if track:
             self.artists=list(map(lambda x: ArtistEntryShort(x), track["artists"]))
             self.duration=None
@@ -60,6 +62,19 @@ class TrackEntry(Jsonable):
             self.track_number=None
             self.album=None
 
+
+    @staticmethod
+    def from_track_entry_json(x):
+        te = TrackEntry(None)
+        te.artists=list(map(lambda y: ArtistEntryShort(y), x["artists"]))
+        te.duration=x["duration"]
+        te.url=x["url"]
+        te.name=x["name"]
+        te.track_number=x["track_number"]
+        te.album=x["album"]
+        te.youtube_url=x["youtube_url"] if "youtube_url" in x else None
+        return te
+
     def json(self):
         return {
             "type" : "track",
@@ -68,8 +83,16 @@ class TrackEntry(Jsonable):
             "url" : self.url,
             "name" : self.name,
             "track_number" : self.track_number,
-            "album": self.album
+            "album": self.album,
+            "youtube_url" : self.youtube_url
         }
+
+    def set_youtube_url(self, url):
+        self.youtube_url=url
+
+    def fail(self):
+        self.failcount+=1
+        return self
 
     def trackset(self):
         return TrackSet(self)

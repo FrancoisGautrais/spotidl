@@ -23,8 +23,8 @@
         <i class="material-icons">expand_more</i>
       </a>
       <span class="select-album  p-2" >{{name}}</span>
-      <button class="btn btn-primary p-2 action-button" onclick="select_all('album', '{{albumid}}', true)">Tout cocher</button>
-      <button class="btn btn-danger p-2 action-button" onclick="select_all('album', '{{albumid}}', false)">Tout décocher</button>
+      <button class="btn fond-color-2 p-2 action-button" onclick="select_all('album', '{{albumid}}', true)">Tout cocher</button>
+      <button class="btn fond-color-2 p-2 action-button" onclick="select_all('album', '{{albumid}}', false)">Tout décocher</button>
 
     </span>
     <table class="table select-title"  data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-type="album-content">
@@ -47,8 +47,8 @@
               <i class="material-icons">expand_more</i>
             </a>
             <span class=" p-2">{{name}}</span>
-            <button class="btn btn-primary p-2 action-button" onclick="select_all('artist', '{artistid}', true)">Tout cocher</button>
-            <button class="btn btn-danger p-2 action-button" onclick="select_all('artist', '{artistid}', false)">Tout décocher</button>
+            <button class="btn fond-color-2 p-2 action-button" onclick="select_all('artist', '{artistid}', true)">Tout cocher</button>
+            <button class="btn fond-color-2 p-2 action-button" onclick="select_all('artist', '{artistid}', false)">Tout décocher</button>
           </span>
         </th>
       </tr>
@@ -65,14 +65,23 @@
 </template>
 
 
-<div class="row">
-  <button class="root-control-btn btn btn-success" onclick="download_selected()">Télécharger</button>
-  <button class="root-control-btn btn btn-secondary" onclick="info_select_all()">Tout sélectionner</button>
-  <button class="root-control-btn btn btn-secondary" onclick="info_unselect_all()">Tout désélectionner</button>
-  <button class="root-control-btn btn btn-secondary" onclick="info_unfold_all()">Tout déplier</button>
-  <button class="root-control-btn btn btn-secondary" onclick="info_fold_all()">Tout replier</button>
-  <button class="root-control-btn btn btn-secondary" onclick="cancel_selected()">Annuler</button>
-</div>
-<div id="template-root" class="row">
 
+<div id="info-list" class="hidden">
+  <div class="row">
+    <button class="root-control-btn btn btn-success" onclick="download_selected()">Télécharger</button>
+    <button class="root-control-btn btn btn-secondary" onclick="info_select_all()">Tout sélectionner</button>
+    <button class="root-control-btn btn btn-secondary" onclick="info_unselect_all()">Tout désélectionner</button>
+    <button class="root-control-btn btn btn-secondary" onclick="info_unfold_all()">Tout déplier</button>
+    <button class="root-control-btn btn btn-secondary" onclick="info_fold_all()">Tout replier</button>
+    <button class="root-control-btn btn btn-secondary" onclick="cancel_selected()">Annuler</button>
+  </div>
+
+  <div id="template-root" class="row">
+
+  </div>
+</div>
+<div id="no-info-list">
+  <center>
+    Aucune sélection en cours.
+  </center>
 </div>

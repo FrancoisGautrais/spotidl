@@ -34,14 +34,18 @@ class ExceptionThread(threading.Thread):
     def __init__(self, index):
         threading.Thread.__init__(self)
         self._lock=threading.Lock()
-        self._stop=False
+        self._is_stopped=False
         self._frozen=False
         self._index=index
+        self._interrupted=False
+
+    def is_interrupt(self):
+        return self._interrupted
 
     def is_stopped(self):
         x=True
         self.lock()
-        x=self._stop
+        x=self._is_stopped
         self.unlock()
         return x
 
@@ -62,19 +66,24 @@ class ExceptionThread(threading.Thread):
 
     def run(self):
         while not self.is_stopped():
+            self._interrupted=False
             self.main()
             while self.is_frozen():
                 time.sleep(0.1)
+        log.e("Thread %d fini"%self._index)
 
-    def stop(self):
+    def stop(self, force=False):
         self.lock()
-        self._stop=True
+        self._is_stopped=True
         self.unlock()
+        if force:
+            self.raise_exception()
 
     def get_id(self):
         return self.ident
 
     def raise_exception(self):
+        self._interrupted=True
         thread_id = self.get_id()
         res = ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id,
                                                          ctypes.py_object(SystemExit))
@@ -99,9 +108,10 @@ class Worker(ExceptionThread):
         self.spot=fifo.spot
         self.current_track=None
         self._start_track_time=0
-        self.start()
         self._state=Worker.STATE_IDLE
         self.progress=DownloadProgress(self)
+        self.failcount=0
+        self.start()
 
 
     def get_current_track(self):
@@ -113,13 +123,15 @@ class Worker(ExceptionThread):
     def main(self):
         self.current_track = self.fifo.pop()
         self._start_track_time=time.time()
+
         if not self.current_track:
             return
 
         try:
             self._state= Worker.STATE_FETCH_METADATA
             self.spot.download(self.current_track, self.progress)
-            self.fifo.done(self.current_track)
+            if not self.is_interrupt():
+                self.fifo.done(self.current_track)
             self._state= Worker.STATE_IDLE
         except NoYouTubeVideoFoundError as err:
             self.fifo.error(self.current_track, "NoYouTubeVideoFoundError : "+str(err))
@@ -144,7 +156,6 @@ class Worker(ExceptionThread):
 
 
     def get_track_time(self):
-
         if self._start_track_time and self._state!=Worker.STATE_IDLE:
             return time.time()-self._start_track_time
         return -1

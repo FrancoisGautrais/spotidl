@@ -1,4 +1,8 @@
 import os
+
+from http_server import log
+from spotdl.command_line.exceptions import NoYouTubeVideoFoundError
+
 from config import config as cfg
 import spotdl
 from spotdl.authorize.services import AuthorizeSpotify
@@ -39,16 +43,26 @@ class SpotDlWrapper:
         )
         self.tool=SpotifyHelpers(self.spotipy)
 
-    def download_track(self, track, progress):
-        print("Fetching metadata for '%s'"%track)
-        metadata = self.get_metadata(track)
+
+    def search(self, query, type):
+        return self.spotipy.search(query, type=type)
+
+    def download_track(self, track, progress, youtubeurl=None):
+        log.debug("Récupération des metadata %s " % track)
+        metadata = self.get_metadata(track, youtubeurl)
         return self.download_track_with_meta(metadata, progress)
+
+
+
 
     def download_track_with_meta(self, metadata, progress):
         stream = metadata["streams"].get(
                quality=config.config["output.quality"],
                 preftype="opus",
                 )
+        if(not stream):
+            raise NoYouTubeVideoFoundError("Aucun stream correspondant aux préférence")
+
         track = Track(metadata)
         filename = spotdl.metadata.format_string(
             self.completeFormat,
@@ -56,8 +70,9 @@ class SpotDlWrapper:
             output_extension=self.ext,
             )
 
+
         os.makedirs(os.path.dirname(filename) or ".", exist_ok=True)
-        print("Dwonloading %s " % filename)
+        log.info("Téléchargement %s " % filename)
         #track.download_while_re_encoding(stream, filename)
         self.download_while_re_encoding(track, stream, filename, progress)
 
@@ -68,7 +83,9 @@ class SpotDlWrapper:
     def download_while_re_encoding(self, track, stream, filename, progress,
                                    target_encoding=None,
                                    encoder=EncoderFFmpeg(cfg["utils.ffmpeg"], False)):
+
         total_chunks = track._calculate_total_chunks(stream["filesize"])
+
         process = encoder.re_encode_from_stdin(
             stream["encoding"],
             filename,
@@ -85,7 +102,7 @@ class SpotDlWrapper:
         process.stdin.close()
         process.wait()
 
-    def get_metadata(self, track):
+    def get_metadata(self, track, youtubeurl=None):
         subtracks = track.split("::")
         download_track = subtracks[0]
         custom_metadata_track = len(subtracks) > 1
@@ -98,7 +115,13 @@ class SpotDlWrapper:
             metadata_track
         )
 
-        return  search_metadata.on_youtube_and_spotify()
+        ret=search_metadata.on_youtube_and_spotify()
+
+        if youtubeurl:
+            tmp=search_metadata.providers["youtube"].from_url(youtubeurl)
+            ret["streams"]=tmp["streams"]
+        return ret
+
 
     def fetch_album(self, album_uri):
         return self.tool.fetch_album(album_uri)
@@ -131,10 +154,10 @@ class SpotDlWrapper:
         tmp["total"]=n
         return TrackSet(tmp["items"])
 
-    def _download(self, tracks, progress):
+    def _download(self, tracks, progress, url=False):
         if isinstance(tracks, str):
             if tracks.startswith("https://open.spotify.com/track/"):
-                return self.download_track(tracks, progress)
+                return self.download_track(tracks, progress, url)
             if tracks.startswith("https://open.spotify.com/artist/"):
                 return self._download(self.artist_tracks(tracks), progress)
             if tracks.startswith("https://open.spotify.com/album/"):
@@ -142,11 +165,11 @@ class SpotDlWrapper:
         if isinstance(tracks, TrackSet):
             return self._download(tracks.tracks, progress)
         if isinstance(tracks, TrackEntry):
-            return self._download(tracks.url, progress)
+            return self._download(tracks.url, progress, tracks.youtube_url)
         if isinstance(tracks, (list,tuple)):
             ts = TrackSet()
             for track in tracks:
-                self.download_track(track.url, progress)
+                self.download_track(track.url, progress, tracks.youtube_url)
             return ts
 
     def download(self, tracks, progress):

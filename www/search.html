@@ -2,19 +2,76 @@
   <h1>Rechecher</h1>
   <div class="input-group mb-3">
 
-    <input type="text" class="form-control" id="search-bar" placeholder="Entrez l'URL spotify d'un titre, d'un artiste oud'un album" aria-label="" aria-describedby="basic-addon1" onkeydown="search(this)">
+    <input type="text" class="form-control" id="search-bar"
+           placeholder="Entrez l'URL spotify d'un titre, d'un artiste oud'un album"
+           aria-label="" aria-describedby="basic-addon1" onkeyup="search(this)">
     <div class="input-group-append">
       <button class="btn btn-outline-secondary" type="button" onclick="on_send()"><i class="material-icons md-48">send</i></button>
     </div>
   </div>
-  <div class="or-upload">ou envoyer un fichier d'url<br></div>
-  <div class="input-group mb-3">
+
+  <div class="or-upload hidden">ou envoyer un fichier d'url<br></div>
+  <div class="input-group mb-3 hidden">
     <form enctype="multipart/form-data">
         <input class="btn btn-light" name="file" type="file" id="file-value" />
         <input class="btn btn-success" type="button" onclick="on_upload()"  value="Envoyer" />
     </form>
   </div>
 </div>
+
+
+
+<div id="search_results" class="row" style="display: none;">
+  <div class="search-results-col col-sm"  >
+    <center>Artistes</center>
+    <div class="row" id="search-results-col-artist"> </div>
+  </div>
+  <div class="search-results-col col-sm">
+    <center>Albums</center>
+    <div class="row" id="search-results-col-album"> </div>
+
+  </div>
+  <div class="search-results-col col-sm">
+    <center>Chanson</center>
+    <div class="row" id="search-results-col-track"> </div>
+
+  </div>
+
+</div>
+
+
+<template id="template-album-short">
+  <div class="result-short result-short-album fond-color-2" onclick="on_send('{{url}}')">
+      {{artists}} - {{name}} ({{date}})
+  </div>
+</template>
+
+<template id="template-albums-short-table">
+  <div data-template="template-album-short" data-var="albums"></div>
+</template>
+
+
+<template id="template-artist-short">
+    <div class="result-short result-short-artist fond-color-1 color-4" onclick="on_send('{{url}}')">
+        <img class="artist-image-short" src="{{image}}">
+        {{name}}
+    </div>
+</template>
+
+<template id="template-artists-short-table">
+  <div data-template="template-artist-short" data-var="artists"></div>
+</template>
+
+
+<template id="template-track-short">
+  <div class="result-short result-short-track fond-color-3 color-4" onclick="on_send('{{url}}')">
+      {{artist}} - {{name}}
+  </div>
+</template>
+
+<template id="template-tracks-short-table">
+  <div data-template="template-track-short" data-var="tracks"></div>
+</template>
 
 <style>
 .or-upload {

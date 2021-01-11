@@ -16,6 +16,7 @@ from spotdl.helpers import SpotifyHelpers
 from spotdl.track import Track
 from spotdl.config import DEFAULT_CONFIGURATION
 
+from http_server import log
 from TrackSet import TrackSet
 
 logger = logging.getLogger(name=__name__)
@@ -53,7 +54,15 @@ while(True) :
 import config
 config.init("config.json")
 
-from server import DlServer
-dl = DlServer()
-dl.listen(config.config["server.port"])
 
+from server import DlServer
+
+log.init(log.Log.INFO)
+
+dl=None
+while not dl or dl.do_continue():
+    dl = DlServer()
+    dl.listen(config.config["server.port"])
+    dl.close()
+
+exit(0)

@@ -11,30 +11,28 @@ class DlAPI
         return  this.url_base+sep+x
     }
 
-    _ajax(url, ajax={}, headers={}, success=null, errorFct=null, errorText=null){
+    _ajax(url, ajax={}, headers={}, success=null, errorFct=null, errorText=null, customUrl=false){
+        if(customUrl) return this.__ajax(url, ajax, headers, success, errorFct, errorText)
+        return this.__ajax(this.url(url), ajax, headers, success, errorFct, errorText)
+    }
+
+    __ajax(url, ajax={}, headers={}, success=null, errorFct=null, errorText=null){
         var async=(success || errorFct || errorText)?true:false
-        if(errorFct){
-            var oldfct=errorFct
-            errorFct=function(_a, _b, _c) {
-                if(!(!_a && _b=="error" && _c==""))
-                {
-                    var resp = JSON.parse(_a.responseText);
-                    error( (errorText?errorText:"Erreur")+ "( "+resp.code+" : '"+resp.message+"') : " + resp.data)
-                }else{
-                    error( "Erreur : Le serveur a clos la connexion")
-                }
-                Loading.close()
-                oldfct(resp, _b, _c)
-            }
-        }
         if(errorFct==null){
             errorFct=function(_a, _b, _c) {
                 if(!(!_a && _b=="error" && _c==""))
                 {
-                    var resp = JSON.parse(_a.responseText);
-                    modal_alert("Erreur", (errorText?errorText:"Erreur")+ "( "+resp.code+" : '"+resp.message+"') : " + JSON.stringify(resp.data))
+                    var resp=""
+                    try{
+                        resp = JSON.parse(_a.responseText);
+                        modal_alert("Erreur", (errorText?errorText:"Erreur")+ "( "+resp.code+" : '"+resp.message+"') : " + JSON.stringify(resp.data))
+                    }catch(err){
+                        resp=_a.responseText
+                        toast_error(errorText?errorText:("Le serveur a répondu : '"+resp+"'"))
+                    }
+
                 }else{
-                    error( "Erreur : Le serveur a clos la connexion")
+                    toast_error( "Erreur : Le serveur a clos la connexion")
 
                 }
                 Loading.close()
@@ -47,7 +45,7 @@ class DlAPI
 
         var param = Object.assign({}, {
             type: 'get',
-            url: this.url(url),
+            url: url,
             async: async,
             dataType : "json",
             headers: headers,
@@ -67,6 +65,13 @@ class DlAPI
         opt=Object.assign({
             headers : {}, ajax: {}, success : null, errorFct : null, errorText :null}, opt)
         return this._ajax(url, opt.ajax, opt.headers, opt.success, opt.errorFct, opt.errorText)
+    }
+
+    _ajax_get(url, opt={}){
+        opt=Object.assign({
+            headers : {}, ajax: {}, success : null, errorFct : null, errorText :null}, opt)
+        console.log("URL ='"+url+"'")
+        return this._ajax(url, opt.ajax, opt.headers, opt.success, opt.errorFct, opt.errorText, true)
     }
 
     ajax_delete(url, opt={}){
@@ -117,7 +122,7 @@ class DlAPI
     }
 
     restart_running(url, opt={}){
-        return this.ajax_get("running/cancel/"+url, opt)
+        return this.ajax_get("running/restart/"+url, opt)
     }
 
     remove_queue(url, opt={}){
@@ -136,6 +141,15 @@ class DlAPI
         return this.ajax_get("clear/errors", opt)
     }
 
+    remove_errors(i, opt={}){
+        return this.ajax_get("remove/errors/"+i, opt)
+    }
+
+    remove_done(i, opt={}){
+        return this.ajax_get("remove/done/"+i, opt)
+    }
+
+
     clear_done(opt={}){
         return this.ajax_get("clear/done", opt)
     }
@@ -146,6 +160,53 @@ class DlAPI
 
     list_file(url, opt={}){
         return this.ajax_post("list", data, opt)
+    }
+
+    set_config(data, opt={})
+    {
+        return this.ajax_post("config", data, opt)
+    }
+
+    get_config(data, opt={})
+    {
+        return this.ajax_get("config",opt)
+    }
+
+    restart_error(index, opt={})
+    {
+        return this.ajax_get("restart/error/"+index,opt)
+    }
+
+    manual_error(index, url, opt={})
+    {
+        return this.ajax_post("restart/error/"+index, {url: url},opt)
+    }
+
+    ping(url, opt={})
+    {
+        opt=Object.assign({
+            ajax: {
+                timeout: 1000
+            }
+        }, opt)
+        this._ajax_get(url, opt)
+    }
+    exit(opt={})
+    {
+
+        if(dump) return this.ajax_get("exit/true",opt)
+        return this.ajax_get(url,opt)
+    }
+    restart(opt={})
+    {
+        return this.ajax_get("restart",opt)
+    }
+
+    static SEARCH_ALBUM="album"
+    static SEARCH_ALBUM="track"
+    static SEARCH_ARTIST="artist"
+    search(text, type, opt={}){
+        return this.ajax_get("search/"+text+"?type="+type, opt)
     }
 }
 

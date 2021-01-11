@@ -39,6 +39,37 @@
   </div>
 </div>
 
+
+
+<div class="modal" tabindex="-1" role="dialog"  id="input-youtube">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Lien manuel</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Vous pouvez donner le lien youtube afin de télécharger la chanson.
+        Les métadonnées seront ajoutées
+        <div class="input-group" >
+          <span class="input-group-text">URL Youtube</span>
+          <input type="text" aria-label="URL Youtube" class="form-control"
+                 data-bind="url">
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="open_youtube_search()">Rechercher</button>
+        <button type="button" class="btn btn-success" data-dismiss="modal" onclick="queue_errors_manual_valid()">Valider</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <div class="modal" tabindex="-1" role="dialog"  id="confirm-modal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -57,3 +88,19 @@
     </div>
   </div>
 </div>
+
+<div class="custom-overlay hidden" id="loading-host">
+  <div class="loading">
+    <center>
+        <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="loading-text">Loading</div>
+      </center>
+  </div>
+</div>
+
+
+<div class="notifications-host">
+</div>
+

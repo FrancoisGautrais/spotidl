@@ -10,27 +10,32 @@
     <link rel="stylesheet" href="third-party/css/bootstrap.min.css"  data-include="">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" >
     <link href="/css/common.css" rel="stylesheet"  data-include="">
+    <link href="/css/colors.css" rel="stylesheet"  data-include="">
+    <link href="/css/info.css" rel="stylesheet"  data-include="">
+    <link href="/css/queue.css" rel="stylesheet"  data-include="">
+    <link href="/css/search.css" rel="stylesheet"  data-include="">
+    <link href="/css/parameters.css" rel="stylesheet"  data-include="">
 
 
     <title>Spotify Downloader</title>
   </head>
   <body>
     <#include("modals.html")>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg fond-color-1 color-4">
       <a class="navbar-brand" >Spotify Downloader</a>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="nav navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link nav-item" href="#search-tab" data-toggle="tab">Rechercher</a>
+            <a class="nav-link nav-item color-4" href="#search-tab" data-toggle="tab">Rechercher</a>
           </li>
           <li class="nav-item">
-            <a id="info-tab-trigger" class="nav-link nav-item" href="#info-tab" data-toggle="tab">Sélection</a>
+            <a id="info-tab-trigger" class="nav-link nav-item color-4" href="#info-tab" data-toggle="tab">Sélection</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link nav-item" href="#queue-tab" data-toggle="tab">File d'attente</a>
+            <a class="nav-link nav-item color-4" href="#queue-tab" data-toggle="tab">File d'attente</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link nav-item" href="#parameters-tab" data-toggle="tab">Paramètres</a>
+            <a class="nav-link nav-item color-4" href="#parameters-tab" data-toggle="tab">Paramètres</a>
           </li>
         </ul>
       </div>
@@ -60,6 +65,7 @@
     <script src="third-party/js/mustache.min.js" data-include=""></script>
     <script src="js/localdata.js" data-include=""></script>
     <script src="js/template.js" data-include=""></script>
+    <script src="js/databind.js" data-include=""></script>
     <script src="js/api.js" data-include=""></script>
     <script src="js/ui.js" data-include=""></script>
     <script src="js/common.js" data-include=""></script>

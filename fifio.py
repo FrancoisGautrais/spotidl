@@ -1,7 +1,7 @@
 import time
 from threading import Thread, Lock
-
-from TrackSet import Jsonable, JsonArray
+from http_server import log
+from TrackSet import Jsonable, JsonArray, TrackEntry
 
 
 class FIFO(Jsonable):
@@ -9,6 +9,7 @@ class FIFO(Jsonable):
     def __init__(self):
         self.data=[]
         self.lock=Lock()
+        self.running=True
 
     def push(self, url):
         self.lock.acquire()
@@ -35,7 +36,7 @@ class FIFO(Jsonable):
 
     def pop(self, blocking=True):
         if not blocking and not len(self.data): return None
-        while True:
+        while self.running:
             if len(self.data):
                 self.lock.acquire()
                 x= self.data[0]
@@ -48,4 +49,14 @@ class FIFO(Jsonable):
     def clear(self):
         self.lock.acquire()
         self.data=[]
+        self.lock.release()
+
+    def remove(self, id):
+        self.lock.acquire()
+        if not id.startswith("https://"):
+            id="https://open.spotify.com/track/"+id
+        for track in self.data:
+            if track.url==id:
+                self.data.remove(track)
+                break
         self.lock.release()

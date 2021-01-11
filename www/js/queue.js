@@ -1,4 +1,4 @@
-var QUEUE_REFRESH=2000
+var QUEUE_REFRESH=100000
 var QUEUE_DATA=null;
 
 $(document).ready(function(){
@@ -8,63 +8,26 @@ $(document).ready(function(){
 function td(x){
     return $("<td>"+x+"</td>")
 }
-/*
-function refresh(data=null, cont=false)
-{
-    if(data==null){
-        API.queue({
-            success: function(data){
-                refresh(data.queue, cont);
-            }
-        })
-        return;
-    }
-    $("#queue-root").empty()
-    for(var i in data){
-        var track=data[i]
-        var tr = $("<tr></tr>")
-        tr.append(td(i+""))
-        tr.append(td(track.name))
-        tr.append(td(track.album))
-        tr.append(td(track.artists[0].name))
-        $("#queue-root").append(tr)
-    }
-    if(cont){
-        setTimeout(function(){
-            refresh(null, true)
-        },3000)
-    }
-}*/
+
+
+
+var YOUTUBE_MANUAL=null
+
+var DB_YOUTUBE=null
+var YOUTUBE_ERROR_INDEX=0
+$(document).ready(function(){
+    DB_YOUTUBE=new DataBind("input-youtube");
+})
 
 function process_input_running(r){
     return Object.assign(r,{
         id: r.id,
         track_time: Utils.formatDurationHMS(r.track_time),
         track: process_input_track(r.track),
-        progress : (r.progress!=null)?r.progress:"",
+        progress : (r.progress!=null)?itof(r.progress,1):"0",
         url: (r.track)?r.track.url:r.id,
         class: (r.track)?"":"hidden"
     })
-}
-
-function process_input_track(track){
-    if(track){
-        return Object.assign(track,{
-            duration: Utils.formatDurationHMS(track.duration),
-            artist: (track.artists)?track.artists[0].name:"none"
-        })
-    }else{
-        return {
-            url: "none",
-            name : "none",
-            duration : "-",
-            artist : "none",
-            artists : [],
-            album : "none",
-            track_number : "-",
-            class: "hidden"
-        }
-    }
 }
 
 function process_input_error(err){
@@ -74,7 +37,7 @@ function process_input_error(err){
 }
 
 CURRENT_RUNNING=[]
-function process_queue_input(data){
+function process_queue_running(data){
     for(var i in data){
         data[i]=process_input_running(data[i])
     }
@@ -82,19 +45,38 @@ function process_queue_input(data){
 }
 
 function process_queue_input(data){
+    var len = data.errors.length
+    var tmp = []
     for(var i in data.errors){
-        data.errors[i]=process_input_error(data.errors[i])
+        if(!data.errors[i]) continue
+        var x = process_input_error(data.errors[i])
+        x.index=i;
+        tmp.push(x)
     }
+    data.errors=tmp
+
+
     for(var i in data.running){
+        if(!data.running[i]) continue
         data.running[i]=process_input_running(data.running[i])
     }
-    CURRENT_RUNNING=data.running
+    CURRENT_RUNNING=data
+
+    len = data.done.length
+    tmp=[]
     for(var i in data.done){
-        data.done[i]=process_input_track(data.done[i])
+        if(!data.done[len-1-i]) continue
+        tmp.push(process_input_track(data.done[len-1-i]))
     }
+    data.done=tmp
+
+    len = data.queue.length
+    tmp=[]
     for(var i in data.queue){
-        data.queue[i]=process_input_track(data.queue[i])
+        if(!data.queue[i]) continue
+        tmp.push(process_input_track(data.queue[i]))
     }
+    data.queue=tmp
     return data
 }
 
@@ -123,7 +105,6 @@ function refresh(data=null, cont=false)
     QUEUE_DATA=Object.assign({}, data)
 
     data=process_queue_input(data)
-    console.log("data-refresh:", data)
     var tpl = Template.instanciate("template-queue-root", data);
     restore_queue_table_visibility(tpl)
     $("#queue-root").empty()
@@ -137,12 +118,15 @@ function refresh(data=null, cont=false)
 
 function is_running_file_change(data)
 {
-    if(CURRENT_RUNNING.length!=data.length) return true;
-    for(var i=0; i<data.length; i++){
-        if(data[i].url!=CURRENT_RUNNING[i].url)
+    if(!CURRENT_RUNNING || CURRENT_RUNNING.running.length!=data.running.length) return true;
+    for(var i=0; i<data.running.length; i++){
+        if(data.running[i].url!=CURRENT_RUNNING.running[i].url)
             return true
     }
-    return false
+    return data.running_count!=CURRENT_RUNNING.running_count ||
+        data.queue_count!=CURRENT_RUNNING.queue_count ||
+        data.errors_count!=CURRENT_RUNNING.errors_count ||
+        data.done_count!=CURRENT_RUNNING.done_count
 }
 
 function update_running(data=null, cont=false)
@@ -155,22 +139,21 @@ function update_running(data=null, cont=false)
         })
         return;
     }
-    QUEUE_DATA=Object.assign({}, data)
+    data=Object.assign({}, data)
 
-    console.log("data-upoate-running:", data)
-    data=process_input_running(data)
+    data.running=process_queue_running(data.running)
     var changed = is_running_file_change(data)
     CURRENT_RUNNING=data
     if(changed){
-        console.log("Running changed")
         refresh(null, true)
     }else{
-        console.log("Running  not changed")
-        for(var i in data){
-            var r = data[i]
+        for(var i in data.running){
+            var r = data.running[i]
             $("#queue-running-state-"+r.id).html(r.state)
             $("#queue-running-time-"+r.id).html(r.track_time)
-            $("#queue-running-progress-"+r.id).html(r.progress)
+            $("#queue-running-progress-"+r.id).attr("aria-valuenow", r.progress)
+            $("#queue-running-progress-"+r.id).css("width", r.progress+"%")
+            $("#queue-running-progress-"+r.id).html(r.progress+"%")
         }
 
         if(cont){
@@ -209,6 +192,51 @@ function queue_clear_running()
     })
 }
 
+function queue_clear_done()
+{
+    API.clear_done({
+        success: function(){refresh();}
+    })
+}
+
+function queue_errors_remove(index) {
+    var n=QUEUE_DATA?QUEUE_DATA.errors_count:null;
+    if(n<=0) return;
+    API.remove_errors(index, {
+        success: function(){refresh();}
+    })
+}
+
+function queue_errors_restart(index)
+{
+    var track = QUEUE_DATA.errors[index]
+    API.restart_error(YOUTUBE_ERROR_INDEX,{
+        success: function(d){
+            toast("1 fichier ajouté")
+        }
+    })
+}
+
+function queue_errors_manual(index)
+{
+    YOUTUBE_MANUAL = QUEUE_DATA.errors[index]
+    YOUTUBE_ERROR_INDEX=index
+    DB_YOUTUBE.field("url", "")
+    $("#input-youtube").modal()
+}
+
+function queue_errors_manual_valid()
+{
+    DB_YOUTUBE.updateFields()
+    var  url = DB_YOUTUBE.fields.url
+    console.log("url====",url)
+    API.manual_error(YOUTUBE_ERROR_INDEX, url, {
+        success: function(d){
+            toast("1 fichier ajouté")
+        }
+    })
+}
+
 function queue_clear_errors()
 {
     var n=QUEUE_DATA?QUEUE_DATA.errors_count:null;
@@ -243,6 +271,33 @@ function toggle_queue(type)
     }else{
         queue_table_visibility(type, true)
     }
+}
+
+
+function remove_done(id){
+    API.remove_done(id, {
+        success: function(){refresh();}
+    })
+}
+
+
+
+function remove_queue(id){
+    API.remove_done(id, {
+        success: function(){refresh();}
+    })
+}
+
+function cancel_job(url) {
+    API.cancel_running(url, {
+        success: function(){refresh();}
+    })
+}
+
+function restart_job(url) {
+    API.restart_running(url, {
+        success: function(){refresh();}
+    })
 }
 
 function queue_table_visibility(type, val, temp=null){

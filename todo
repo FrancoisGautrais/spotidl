@@ -1,15 +1,5 @@
 [UI]
-    - Gestion en cas de blocage
     - Palette de couleur
-    [Queue]
-        - Changer allure bouton tout cocher/décocher
-
-
-    [Search]
-        - Proposer différents types de recherche/téléchargement dans une page avec des tabs ou radio:
-            - Recherche rapide (url spotify, titre, artiste ou album)
-            - Upload de fichiers texts (listes d'url)
-            - Recherche avancé par titre, artiste ou album
 
     [Selection]
         - Mode d'afficahge playlist (sans arborescence)
@@ -24,12 +14,7 @@
         - Gestion des utilisateurs
 
         - Ajout d'entrée d'api pour
-            -Recherche dans spotify par titre artiste ou album
             -Gestion des liens spotify de playlist
-            -Gestion de la fille d'attente
-                - progression
-                - redémarrage (/api/command/running/#id/restart)
-                - annulation (/api/command/running/#id/cancel)
 
     [Log]
         - Logger les erreur (stderr) du thread

@@ -1,12 +1,16 @@
+import json
+import os
 import time
 import uuid
 
+import config
+from http_server import log
 from TrackSet import TrackSet, TrackEntry, JsonArray, Jsonable
 from SpotDlWrapper import SpotDlWrapper
 from fifio import FIFO
 from threading import Thread, Lock
 
-from worker import Worker
+from worker import Worker, ExceptionThread
 
 
 class DownloaderException(Exception):
@@ -29,12 +33,38 @@ class JsonError(Jsonable):
             "id" : str(uuid.uuid4())+str(self.time)
         }
 
-class Downloader(Thread):
+    @staticmethod
+    def from_json(js):
+        je = JsonError(TrackEntry.from_track_entry_json(js["track"]), js["message"])
+        je.time=js["time"]
+        je.id=js["id"]
+        return je
+
+class WatchDogThread(ExceptionThread):
+    def __init__(self, down):
+        super().__init__(-1)
+        self.downloader=down
+        self._continue=True
+        self.pause=30
+        self.step=0.5
+        self.n_step=int(self.pause/self.step)
+
+    def stop(self):
+        self._continue=False
+        super().stop()
+
+    def main(self):
+        while self._continue:
+            self.downloader.watchdog()
+            for i in range(self.n_step):
+                if not self._continue: return
+                time.sleep(0.5)
+
+class Downloader:
 
     DONE_SIZE=1024
     THREAD_TIMEOUT=3600 #1h
     def __init__(self, nThreads=1):
-        super().__init__()
         self.spot = SpotDlWrapper()
         self.fifo = FIFO()
         self._lock=Lock()
@@ -42,6 +72,67 @@ class Downloader(Thread):
         self._threads=JsonArray()
         self._errors=JsonArray()
         self._n_thread=nThreads
+        self.watchdog_time=5*60
+        self.dump_file="dump.json"
+
+
+        if os.path.isfile(self.dump_file) and os.path.exists(self.dump_file):
+            with open(self.dump_file) as f:
+                js = json.loads(f.read())
+            os.remove(self.dump_file)
+            for track in js["queue"]:
+                self.fifo.push(TrackEntry.from_track_entry_json(track))
+            for track in js["done"]:
+                self._done.append(TrackEntry.from_track_entry_json(track))
+            for error in js["errors"]:
+                self._errors.append(JsonError.from_json(error))
+
+        self._watchdog=WatchDogThread(self)
+        self._watchdog.start()
+
+    def errors_count(self): return len(self._errors)
+    def running_count(self): return len(self._threads)
+    def done_count(self): return len(self._done)
+    def queue_count(self): return len(self.fifo.data)
+
+    def dump(self):
+        self.lock()
+        self.fifo.lock.acquire()
+        tmp=[]
+        for x in self._threads:
+            track=x.get_current_track()
+            if track:
+                tmp.append(track.json())
+        with open(self.dump_file, "w") as f:
+            data={
+                "queue" : tmp+self.fifo.json(),
+                "done" : self._done.json(),
+                "errors" : self._errors.json()
+            }
+            f.write(json.dumps(data))
+        self.fifo.lock.release()
+        self.unlock()
+
+    def stop(self, dump):
+        if dump: self.dump()
+        self.fifo.running=False
+        for th in self._threads:
+            th.stop()
+            th.join()
+        self._watchdog.stop()
+        th.join()
+
+    def watchdog(self):
+        i=0
+        for th in self._threads:
+            if th.get_track_time()>self.watchdog_time:
+                track=th.get_current_track().fail()
+                log.e("WatchdogError : [%d] -> '%s' after %d sec tries: %d" % (i, track.url, int(th.get_track_time()),track.failcount))
+                if track.failcount<3:
+                    self.restart_running(track.url)
+                else:
+                    self.cancel_running(track.url)
+            i+=1
 
     def running(self):
         running = []
@@ -81,6 +172,25 @@ class Downloader(Thread):
                 self.error(track, "TIMEOUT ERROR")
                 self._threads[i]=Worker(i, self)
 
+    def remove_error(self, i):
+        self.lock()
+        if not isinstance(i, int) or i < 0 or i >= len(self._errors):
+            self.unlock()
+            return
+        self._errors.remove(self._errors[i])
+        self.unlock()
+
+    def remove_queue(self, id):
+        self.fifo.remove(id)
+
+    def remove_done(self, i):
+        self.lock()
+        if not isinstance(i, int) or i<0 or i>=len(self._done):
+            self.unlock()
+            return
+        self._done.remove(self._done[i])
+        self.unlock()
+
 
     def lock(self):
         self._lock.acquire()
@@ -102,22 +212,37 @@ class Downloader(Thread):
 
     def clear_errors(self):
         self.lock()
-        self._errors = []
+        self._errors = JsonArray()
         self.unlock()
 
     def clear_done(self):
         self.lock()
-        self._errors=[]
+        self._done=JsonArray()
         self.unlock()
 
     def pop(self):
-        self.lock()
         y = self.fifo.pop()
-        self.unlock()
         return y
 
-    def _restart_running(self, trackid, restart):
+    def restart_error(self, i ):
+        if i>=0 and i< len(self._errors):
+            self.fifo.prepend(self._errors[i].track)
+            return True
+        return False
+
+
+    def manual_error(self, i, url):
+        if i>=0 and i< len(self._errors):
+            track = self._errors[i].track
+            track.set_youtube_url(url)
+            self.fifo.prepend(track)
+            return True
+        return False
+
+    def _restart_running(self, trackid, restart, isManual=False):
         ok=False
+        if trackid.startswith("https://"):
+            trackid=trackid.split("/")[-1]
         for i  in range(len(self._threads)):
             thd=self._threads[i]
             trid = thd.get_current_url().split("/")[-1]
@@ -127,19 +252,28 @@ class Downloader(Thread):
                 thd.raise_exception()
                 #thd.join()
 
-
                 if restart:
+                    type=("mannuel" if isManual else "automatique")
                     self.prepend(track)
+                    self.error(track, "Redémarrage %s"%type)
+                    log.w("Rédémarage %s de la piste '%s' "%(type, track.url))
+                else:
+                    type=("mannuelle" if isManual else "automatique")
+                    self.error(track, "Annulation %s"%type)
+                    log.w("Annulation %s de la piste '%s' "%(type, track.url))
 
                 self._threads[i]=Worker(i, self)
                 return True
         return ok
 
-    def restart_running(self, url):
-        return self._restart_running(url, True)
+    def restart_running(self, url, isManual=False):
+        return self._restart_running(url, True, isManual)
 
-    def cancel_running(self, url):
-        return self._restart_running(url, True)
+    def cancel_running(self, url, isManual=False):
+        return self._restart_running(url, False, isManual)
+
+    def search(self, query, type):
+        return self.spot.search(query, type)
 
     def prepend(self, track):
         self.lock()
@@ -157,7 +291,6 @@ class Downloader(Thread):
             x=self.fifo.data[i]
             if x and x.url and x.url.split("/")[-1]==urls:
                 self.fifo.data[i]=None
-                print("-------------------- remove !")
         self.fifo.lock.release()
 
     def _add_track(self, tracks):

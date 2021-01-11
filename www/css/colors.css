@@ -1,0 +1,88 @@
+:root {
+    --rouge: #e94b5e;
+    --vert: #82c1ab;
+    --bleu: #007e94;
+    --noir: #000000;
+    --blanc: #ffffff;
+
+    --color1: var(--rouge);
+    --color2: var(--vert);
+    --color3: var(--bleu);
+    --color4: var(--blanc);
+    --color5: var(--noir);
+}
+
+.color-1 { color: var(--color1) ! important; }
+.fond-color-1 { background-color: var(--color1) ! important; }
+.color-2 { color: var(--color2) ! important; }
+.fond-color-2 { background-color: var(--color2) ! important; }
+.color-3 { color: var(--color3) ! important; }
+.fond-color-3 { background-color: var(--color3) ! important; }
+.color-4 { color: var(--color4) ! important; }
+.fond-color-4 { background-color: var(--color4) ! important; }
+.color-5 { color: var(--color5) ! important; }
+.fond-color-5 { background-color: var(--color5) ! important; }
+
+
+.text-color-main { color: var(--noir) ! important; }
+.text-color-second { color: var(--blanc) ! important; }
+
+.elem-color-main { color: var(--rouge) ! important; }
+.elem-color-second { color: var(--bleu) ! important; }
+.elem-color-third { color: var(--vert) ! important; }
+
+.back-color-main { color: var(--blanc) ! important; }
+.second-color-second { color: var(--vert) ! important; }
+
+
+
+.rouge {
+    color: var(--rouge) ! important;
+}
+
+.fond-rouge {
+    background-color: var(--rouge) ! important;
+}
+
+
+
+.bleu {
+    color: var(--bleu) ! important;
+}
+
+.fond-bleu {
+    background-color: var(--bleu) ! important;
+}
+
+
+
+.vert {
+    color: var(--vert) ! important;
+}
+
+.fond-vert {
+    background-color: var(--vert) ! important;
+}
+
+
+
+
+.noir {
+    color: var(--noir) ! important;
+}
+
+.fond-noir {
+    background-color: var(--noir) ! important;
+}
+
+
+
+
+.blanc {
+    color: var(--blanc) ! important;
+}
+
+.fond-blanc {
+    background-color: var(--blanc) ! important;
+}
+
