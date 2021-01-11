@@ -30,16 +30,19 @@ class ParametersTab
         var self = this;
         API.ping(this.get_new_url(port),{
             success: function(d){
-
                 Loading.close()
                 window.location.href=window.location.protocol+"//"+window.location.hostname+":"+
                             port+window.location.pathname;
             },
-            errorFct: function(d){
-                setTimeout(function(){
-                    console.log("ping fail "+port)
-                    self.ping(port)
-                }, 1000)
+            errorFct: function(d, hasJs){
+                if(hasJs && d.code!=401){
+                    setTimeout(function(){
+                        self.ping(port)
+                    }, 1000)
+                }else{
+                    window.location.href=window.location.protocol+"//"+window.location.hostname+":"+
+                            port+window.location.pathname;
+                }
             }
         })
     }

@@ -121,19 +121,28 @@ class Downloader:
             th.stop()
             th.join()
         self._watchdog.stop()
-        th.join()
+        self._watchdog.join()
 
     def watchdog(self):
-        i=0
-        for th in self._threads:
-            if th.get_track_time()>self.watchdog_time:
+        for i in range(len(self._threads)):
+            th=self._threads[i]
+            if not th.is_alive():
+                if th.get_current_track():
+                    track = th.get_current_track().fail()
+                    log.e("WatchdogError : [%d] -> '%s' a crasher le thred %d fois" % (
+                                i, track.url,  track.failcount))
+                    if track.failcount < 3:
+                        self.restart_running(track.url)
+                    else:
+                        self.cancel_running(track.url)
+                self._threads[i] = Worker(i, self)
+            elif th.get_track_time()>self.watchdog_time:
                 track=th.get_current_track().fail()
                 log.e("WatchdogError : [%d] -> '%s' after %d sec tries: %d" % (i, track.url, int(th.get_track_time()),track.failcount))
                 if track.failcount<3:
                     self.restart_running(track.url)
                 else:
                     self.cancel_running(track.url)
-            i+=1
 
     def running(self):
         running = []
