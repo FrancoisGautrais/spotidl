@@ -187,6 +187,17 @@ class TrackSet(Jsonable):
         self.tracks=[]
         self.artists={}
         self.add_tracks(tracks)
+        self.refer=[]
+
+    def add_refer(self, x):
+        if not isinstance(x, (list, tuple)): x=[x]
+        self.refer+=x
+
+    def each(self, fct):
+        for x in self.tracks:
+            fct(x)
+
+    def get_tracks(self): return self.tracks
 
     def add_tracks(self, track):
         if isinstance(track, TrackSet):
@@ -212,7 +223,8 @@ class TrackSet(Jsonable):
     def json(self):
         return {
             "artists" : list(map(lambda x: x.json(), self.artists.values())),
-            "count" : len(self.tracks)
+            "count" : len(self.tracks),
+            "refer" : self.refer
         }
 
     def __str__(self): return self.str()

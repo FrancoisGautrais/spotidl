@@ -3,7 +3,7 @@ import os
 from http_server import log
 from spotdl.command_line.exceptions import NoYouTubeVideoFoundError
 
-from config import config as cfg
+from config import cfg
 import spotdl
 from spotdl.authorize.services import AuthorizeSpotify
 from spotdl.config import DEFAULT_CONFIGURATION
@@ -30,9 +30,9 @@ class SpotDlWrapper:
     def __init__(self, init=True):
         self.spotipy=None
         self.tool=None
-        self.dir=config.config["output.dir"]
-        self.format=config.config["output.format"]
-        self.ext=config.config["output.extension"]
+        self.dir=cfg["output.dir"]
+        self.format=cfg["output.format"]
+        self.ext=cfg["output.extension"]
         self.completeFormat=os.path.join(self.dir, self.format)
         if init: self.init()
 
@@ -154,6 +154,30 @@ class SpotDlWrapper:
         tmp["total"]=n
         return TrackSet(tmp["items"])
 
+
+    def _playlist_items(self, url, offset):
+        return self.spotipy.playlist_items(url, offset=offset)
+
+    def playlist_items(self, url):
+        x = self._playlist_items(url, 0)
+        total=x["total"]
+        i=len(x["items"])
+        items=x["items"]
+        while i<total:
+            x = self._playlist_items(url, i)
+            i+=len(x["items"])
+            items+=x["items"]
+        return items
+
+    def playlist_tracks(self, album_uri, artist_uri=None):
+        tmp=self.playlist_items(album_uri)
+        n=0
+        newTracks=[]
+        for item in tmp:
+            n+=1
+            newTracks.append(item["track"])
+        return TrackSet(newTracks)
+
     def _download(self, tracks, progress, url=False):
         if isinstance(tracks, str):
             if tracks.startswith("https://open.spotify.com/track/"):
@@ -162,6 +186,8 @@ class SpotDlWrapper:
                 return self._download(self.artist_tracks(tracks), progress)
             if tracks.startswith("https://open.spotify.com/album/"):
                 return self._download(self.album_tracks(tracks), progress)
+            if tracks.startswith("https://open.spotify.com/playlist/"):
+                return self._download(self.playlist_tracks(tracks), progress)
         if isinstance(tracks, TrackSet):
             return self._download(tracks.tracks, progress)
         if isinstance(tracks, TrackEntry):
@@ -169,7 +195,7 @@ class SpotDlWrapper:
         if isinstance(tracks, (list,tuple)):
             ts = TrackSet()
             for track in tracks:
-                self.download_track(track.url, progress, tracks.youtube_url)
+                self.download_track(track.url, progress, track.youtube_url)
             return ts
 
     def download(self, tracks, progress):

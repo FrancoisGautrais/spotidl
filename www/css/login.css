@@ -1,0 +1,11 @@
+.card-login {
+    position: fixed;
+    top: 20%;
+    left: 35%;
+    width: 30%;
+    height: auto;
+}
+
+.btn-login {
+    margin-top: 20px;
+}

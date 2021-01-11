@@ -301,6 +301,8 @@ class Downloader:
                 return self._add_track(self.spot.artist_tracks(tracks))
             if tracks.startswith("https://open.spotify.com/album/"):
                 return self._add_track(self.spot.album_tracks(tracks))
+            if tracks.startswith("https://open.spotify.com/playlist/"):
+                return self._add_track(self.spot.playlist_tracks(tracks))
 
             raise DownloaderException("add_track: la chaine passée (%s) n'est pas une url valide" % tracks)
         if isinstance(tracks, TrackSet):
@@ -339,6 +341,8 @@ class Downloader:
                 return self._get_info(self.spot.artist_tracks(url))
             if url.startswith("https://open.spotify.com/album/"):
                 return self._get_info(self.spot.album_tracks(url))
+            if url.startswith("https://open.spotify.com/playlist/"):
+                return self._get_info(self.spot.playlist_tracks(url))
 
             raise DownloaderException("add_track: la chaine passée (%s) n'est pas une url valide" % url)
         if isinstance(url, TrackSet):
@@ -350,7 +354,6 @@ class Downloader:
             return ts
         if isinstance(url, dict):
             return self._get_info(TrackEntry(dict))
-
         if isinstance(url, TrackEntry):
             return url
 
@@ -358,6 +361,7 @@ class Downloader:
 
     def get_info(self, url):
         tracks=self._get_info(url)
+        tracks.add_refer(url)
         if isinstance(tracks, TrackEntry):
             return TrackSet(tracks)
         if isinstance(tracks, TrackSet):

@@ -1,4 +1,7 @@
-
+function set_visible(x, val){
+    if(val) x.show()
+    else x.hide()
+}
 class DataBind {
     /*
         data-bind="NAME[:TYPE]" -> this.NAME (TYPE: default str)
@@ -10,8 +13,49 @@ class DataBind {
         this.fields={}
         this.__cb_object={}
         this.__cb_callbacks={}
+        this.__if_cb={}
         this._root=$("#"+this.__id)
         this._updateBind()
+        this._set_if_cb()
+    }
+
+    _refresh_if_cb(){
+        for(var name in this.__if_cb[name]){
+            var arr = this.__if_cb[name];
+            for(var i in arr){
+                arr[i]();
+            }
+        }
+    }
+
+    __set_if_cb(self, trigger, inv){
+        var fct = function(){
+            var val = trigger.is(":checked");
+            set_visible(self, val);
+        }
+        fct();
+        var name = trigger.data("bind").split(":")[0]
+        if(this.__if_cb[name]==undefined){
+            this.__if_cb[name]=[]
+        }
+        this.__if_cb[name].push(fct)
+        trigger.on("change", fct)
+    }
+    _set_if_cb(){
+        var self=this;
+        var root = this._root;
+        $("[data-if]").each(function(i,e){
+            e=$(e)
+            var element =  e.data("if")
+            if(element.length==0) return;
+            var inv =false;
+            if(element && element.length>1 && element[0]=="!"){
+                inv=true;
+                element=element.substring(1,element.length-1)
+            }
+            self.__set_if_cb($(e), $("[data-bind^='"+element+"']"), inv)
+        })
+
     }
 
     __get_callback(e){
@@ -54,7 +98,6 @@ class DataBind {
                 }
             })
         }
-
     }
 
     _updateBind(){
@@ -121,6 +164,7 @@ class DataBind {
 
     __set_field(e, value){
         var tag = e.prop("tagName").toLowerCase()
+
         var bind = e.data("bind").split(":")
         var type = (bind.length>1)?bind[1]:"string"
         //this.fields[bind[0]]=value
@@ -131,7 +175,7 @@ class DataBind {
             case "input":
                 switch(e.prop("type")){
                     case "checkbox":
-                        value=e.prop("checked", !(((""+value).toLowerCase()!="false") && (value!="0")))
+                        e.prop("checked", value)
                         break;
                     default:
                         if(e.hasClass("datepicker")){
@@ -149,6 +193,10 @@ class DataBind {
                 break
             default:
                 value=e.html(value)
+        }
+        var arr = this.__if_cb[bind[0]]
+        for(var i in arr){
+            arr[i]()
         }
     }
 
@@ -285,7 +333,6 @@ class DataBind {
     }
 
     set_fields(obj){
-
         this._set_field_recurs("", obj)
     }
 

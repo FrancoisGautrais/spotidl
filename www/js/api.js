@@ -18,7 +18,27 @@ class DlAPI
 
     __ajax(url, ajax={}, headers={}, success=null, errorFct=null, errorText=null){
         var async=(success || errorFct || errorText)?true:false
-        if(errorFct==null){
+
+        if(errorFct){
+            var oldfct=errorFct;
+            errorFct=function(_a, _b, _c) {
+                if(!(!_a && _b=="error" && _c==""))
+                {
+                    var resp=null
+                    try{
+                        resp = JSON.parse(_a.responseText);
+                        oldfct(resp, true, _c)
+                    }catch(err){
+                        resp=_a.responseText
+                        oldfct(resp, false, _c)
+                    }
+
+                }else{
+                    oldfct(null, _b, _c)
+                }
+            }
+        }
+        else{
             errorFct=function(_a, _b, _c) {
                 if(!(!_a && _b=="error" && _c==""))
                 {
@@ -170,6 +190,21 @@ class DlAPI
     get_config(data, opt={})
     {
         return this.ajax_get("config",opt)
+    }
+
+    subsonic_start_scan(opt={})
+    {
+        return this.ajax_get("subsonic/scan/start", opt)
+    }
+
+    subsonic_status_scan(opt={})
+    {
+        return this.ajax_get("subsonic/scan/status", opt)
+    }
+
+    subsonic_test(data, opt={})
+    {
+        return this.ajax_post("subsonic/test", data, opt)
     }
 
     restart_error(index, opt={})

@@ -1,9 +1,4 @@
 [UI]
-    - Palette de couleur
-
-    [Selection]
-        - Mode d'afficahge playlist (sans arborescence)
-        - Choix du mode d'affichage (playlist ou arborescence)
 
     [page de login]
 
@@ -13,8 +8,7 @@
     [Données]
         - Gestion des utilisateurs
 
-        - Ajout d'entrée d'api pour
-            -Gestion des liens spotify de playlist
-
     [Log]
         - Logger les erreur (stderr) du thread
+
+    - validation de la config

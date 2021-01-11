@@ -195,3 +195,25 @@ class Loading {
     }
 
 }
+
+function isObject(obj) {
+  return obj === Object(obj) && !Array.isArray(obj);
+}
+
+function dict_compare(d1, d2){
+    if(d1.length!=d2.length){
+        return false;
+    }
+    for(var key in d1){
+        if(isObject(d1[key]) && isObject(d2[key])){
+            if(!dict_compare(d1[key], d2[key]))
+                return false
+        }else if(Array.isArray(d1[key]) && Array.isArray(d2[key])){
+            if(!dict_compare(d1[key], d2[key]))
+                return false
+        }else if(d1[key]!=d2[key]){
+            return false
+        }
+    }
+    return true
+}

@@ -1,21 +1,3 @@
-<template id="TI-input-text" data-param="value=;id=;">
-    <input type="text" data-bind="{{name}}"  value="{{value}}" >
-</template>
-
-<template id="TI-form-text" data-param="value=;id=;label=;name=;type=text;cast=string">
-    <div class="input-group" >
-      <span class="input-group-text">{{label}}</span>
-      <input type="{{type}}" aria-label="First name" class="form-control"
-             data-bind="{{name}}:{{cast}}" id="{{id}}" value="{{value}}">
-    </div>
-</template>
-
-<template id="TI-form-button" data-param="value=;id=;label=;class=,btntext=;onclick=">
-    <div class="input-group  mb-3" >
-      <span class="input-group-text">{{label}}</span>
-      <button class="btn {{class}}" onclick="{{onclick}}" type="button" >{{btntext}}</button>
-    </div>
-</template>
 
 
 <div id="parameters-div">
@@ -44,6 +26,18 @@
         <h4>Outils</h4>
         <a data-template="TI-form-text" data-param="label=Chemin de FFMPEG;name=utils.ffmpeg"></a>
     </div>
+    <div class="parameter-section">
+        <h4>Subsonic</h4>
+        <a data-template="TI-form-checkbox" data-param="label=Activer;name=subsonic.enable"></a>
+        <a data-template="TI-form-text" data-param="label=URL du serveur;name=subsonic.url;if=subsonic.enable"></a>
+        <a data-template="TI-form-text" data-param="label=Nom d'utilisateur;name=subsonic.user;if=subsonic.enable"></a>
+        <a data-template="TI-form-text" data-param="label=Mot de passe;name=subsonic.password;type=password;if=subsonic.enable"></a>
+        <div class="input-group  mb-3" data-if="subsonic.enable" >
+            <span class="input-group-text">Actions</span>
+            <button class="btn fond-color-3 color-4" onclick="Config.subsonic_test()" type="button" >Tester la connexion</button>
+            <button class="btn fond-color-2" onclick="Config.subsonic_update()" type="button">Mettre à jour la base</button>
+        </div>
+    </div>
 
     <div class="parameter-section">
         <h4>Actions</h4>
@@ -53,4 +47,5 @@
             <button class="btn fond-color-2" onclick="Config.save_and_restart()" type="button" >Sauvegarder et redémarrer</button>
         </div>
     </div>
+
 </div>

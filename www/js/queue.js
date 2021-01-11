@@ -1,4 +1,4 @@
-var QUEUE_REFRESH=100000
+var QUEUE_REFRESH=1000
 var QUEUE_DATA=null;
 
 $(document).ready(function(){
@@ -280,8 +280,6 @@ function remove_done(id){
     })
 }
 
-
-
 function remove_queue(id){
     API.remove_done(id, {
         success: function(){refresh();}
@@ -314,3 +312,9 @@ function queue_table_visibility(type, val, temp=null){
     a.html($('<i class="material-icons">'+(val?'expand_more':'chevron_right')+'</i>'))
 }
 
+function open_youtube_search(){
+    var url = "https://www.youtube.com/results?search_query="
+    var terms=YOUTUBE_MANUAL.track.name+" "+YOUTUBE_MANUAL.track.artist
+    url+=terms.replaceAll(" ", "+")
+    openInNewTab(url)
+}

@@ -72,6 +72,9 @@ class Template {
     }
 
     static instanciate(templateid, data={}){
+        if(templateid=="template-artist"){
+            //console.log(data)
+        }
         if(!$("#"+templateid).length){
             console.log("ERREUR: le template '"+templateid+"' est introuvable")
             return null;
@@ -79,8 +82,6 @@ class Template {
 
         data=Template.parameter_to_json($("#"+templateid).data("param"), data);
         var templateText = $("#"+templateid)[0].innerHTML
-        //console.log("Template id "+templateid+" ",data, $("#"+templateid))
-        //templateText=templateText.formatUnicorn(data)
         templateText=Mustache.render(templateText, data)
         var root =$(templateText)
 
@@ -92,7 +93,6 @@ class Template {
             var elem =$(e)
             var attr=elem.attr("data-var")
             var ndata = attr=="."?data:(data?data[attr]:null);
-            console.log("-> template id "+templateid+" ",data, attr, data[attr])
             if(ndata!=undefined){
 
                 if(Array.isArray(ndata)){

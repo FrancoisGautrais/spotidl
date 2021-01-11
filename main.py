@@ -1,68 +1,20 @@
 
-import logging
-
-
-import config
-import sys
 import os
-import time
-import http_server
-import spotdl
-import spotipy
-from spotdl.command_line.core import Spotdl, MetadataSearch
-from spotdl.command_line.exceptions import NoYouTubeVideoFoundError, NoYouTubeVideoMatchError
-from spotdl.encode.encoders import EncoderFFmpeg
-from spotdl.helpers import SpotifyHelpers
-from spotdl.track import Track
-from spotdl.config import DEFAULT_CONFIGURATION
+os.chdir(os.path.dirname(__file__))
 
 from http_server import log
-from TrackSet import TrackSet
-
-logger = logging.getLogger(name=__name__)
-"""
-from downloader import Downloader
-
-dl = Downloader()
-#"https://open.spotify.com/album/4eEbMGFrUutpgGIq4dmMOm"
-dl.start()
-while(True) :
-    line = input("Entrez une URL\n").lstrip(" ").rstrip(" ")
-    if line.startswith("https://open.spotify.com/"):
-        n=dl.add_track(line)
-        print("%d pistes ajourées en file d'attente"%n)
-    if line.startswith("add "):
-        line=line[4:].lstrip(" ")
-        n=dl.add_track(line)
-        print("%d pistes ajourées en file d'attente"%n)
-
-    if line.startswith("count"):
-        print(len(dl.fifo.data))
-    if line.startswith("list"):
-        print("\n".join(list(map(lambda x: str(x), dl.fifo.data))))
-    if line.startswith("running"):
-        print("\n".join(list(map(lambda x: str(x), dl.running.values()))))
-    if line.startswith("done"):
-        print("\n".join(list(map(lambda x: str(x), dl.done))))
-    if line.startswith("exit"):
-        dl.exit()
-        exit()
 
 
-
-"""
 import config
-config.init("config.json")
-
+cfg = config.init("config.json")
+if cfg.is_default:
+    cfg.write("config.json")
 
 from server import DlServer
 
 log.init(log.Log.INFO)
-
 dl=None
 while not dl or dl.do_continue():
     dl = DlServer()
-    dl.listen(config.config["server.port"])
+    dl.listen(cfg["server.port"])
     dl.close()
-
-exit(0)

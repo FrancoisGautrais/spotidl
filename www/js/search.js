@@ -49,13 +49,18 @@ function hide_short_search_results(){
 
 
 function handle_download_all(data) {
-    var out=[]
-    for(var i in data){ //artists
-        var artiste = data[i];
+    var out={
+        tracks: [],
+        refer: data.refer
+
+    }
+
+    for(var i in data.artists){ //artists
+        var artiste = data.artists[i];
         for(var j in artiste.albums){
             var album = artiste.albums[j];
             for (var k in album.tracks){
-                out.push(album.tracks[k]);
+                out.tracks.push(album.tracks[k]);
             }
         }
     }
@@ -72,15 +77,15 @@ function handle_info(data)
     if(data.count>20){
         Loading.close()
         modal_download(data.count, function(){ //download all
-            handle_download_all(data.artists);
+            handle_download_all(data);
         },
         function(){ //select
-            show_results(data)
+            Selection.show_results(data)
         });
         $("#search-bar").val("")
         refresh();
     }else{
-        handle_download_all(data.artists);
+        handle_download_all(data);
         $("#search-bar").val("")
         refresh();
     }
