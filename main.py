@@ -1,7 +1,3 @@
-
-import os
-os.chdir(os.path.dirname(__file__))
-
 from http_server import log
 
 
