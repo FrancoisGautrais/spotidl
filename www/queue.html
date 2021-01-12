@@ -17,29 +17,29 @@
 
 <template id="template-queue-table">
   <div class="queue-root queue-root-queue fond-color-2">
-  <div class="queue-root queue-root-queue fond-color-2">
-    <a class="toggle-queue"  onclick="Queue.toggle('queue')" data-id="a-queue">
-        <i class="material-icons">expand_more</i>
-    </a>
-    <span class="queue-title">File d'attente ({{queue_count}}) </span>
-    <div data-id="queue-queue">
-      <a class="control-btn-queue btn fond-color-1 color-4"  onclick="Queue.clear_queue()">Tout effacer</a>
-      <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Titre</th>
-          <th scope="col">Album</th>
-          <th scope="col">Artiste</th>
-          <th scope="col">Durée</th>
-          <th scope="col">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr data-template="template-queue-elem" data-var="queue"></tr>
-      </tbody>
-    </table>
+    <div class="queue-root queue-root-queue fond-color-2">
+      <a class="toggle-queue"  onclick="Queue.toggle('queue')" data-id="a-queue">
+          <i class="material-icons">expand_more</i>
+      </a>
+      <span class="queue-title">File d'attente ({{queue_count}}) </span>
+      <div data-id="queue-queue">
+        <a class="control-btn-queue btn fond-color-1 color-4"  onclick="Queue.clear_queue()">Tout effacer</a>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Titre</th>
+              <th scope="col">Album</th>
+              <th scope="col">Artiste</th>
+              <th scope="col">Durée</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-template="template-queue-elem" data-var="queue"></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-
   </div>
 </template>
 
@@ -200,6 +200,11 @@
   <div data-template="template-queue-errors-table"></div>
 </template>
 
+
+
+<!--------------------------------
+  Main
+-------------------------------->
 
 <div id="queue-root" class="row">
 

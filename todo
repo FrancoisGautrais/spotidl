@@ -1,14 +1,16 @@
 [UI]
+    [Sélection]
+        - Filtrer les résultat
+        - Afficher le nombre de piste par album
+        - Afficher le nombre de piste sélectionné par album
+        - Afficher un album est:
+            - completement sélectionné
+            - partiellement sélectionné
+            - totalement déselectionné
 
-    [page de login]
+    [Recherche]
+        - Recherche avancé
 
 
 [Server]
-
-    [Données]
-        - Gestion des utilisateurs
-
-    [Log]
-        - Logger les erreur (stderr) du thread
-
     - validation de la config

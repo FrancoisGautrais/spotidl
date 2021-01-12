@@ -7,28 +7,20 @@
 
 .toggle-album > i {
     font-size: 32pt;
+    position: relative;
+    top: 2pt;
 }
 
 
 .action-button {
     margin-left: 24px;
 }
-.select-album {
-    font-size: 16pt;
-}
+
 
 .toggle-artist{
     color: black;
     padding-top: 0px !important;
     padding-bottom: 0px !important;
-}
-
-.toggle-artist > i {
-    font-size: 32pt;
-}
-
-.select-artist {
-    font-size: 18pt;
 }
 
 
@@ -47,3 +39,84 @@
     width: calc(100% - 120px);
 }
 
+.filter-bar{
+
+}
+
+.selection-result-count {
+
+}
+
+
+.selection-entry {
+    padding-top: 0px ! important;
+    padding-bottom: 0px ! important;
+}
+
+.selection-entry-track {
+    font-size: 12pt ! important;
+    padding-top: 10px ! important;
+    padding-bottom: 10px ! important;
+}
+
+.selection-entry-album {
+    font-size: 13pt ! important;
+}
+
+.selection-entry-artist {
+    font-size: 14pt ! important;
+}
+
+.select-album > i {
+    top: 4pt;
+    position: relative;
+}
+
+.select-artist > i {
+    top: 2.5pt;
+    position: relative;
+}
+
+.selection-result-count > i {
+    font-size: 24px;
+    position: relative;
+}
+
+.selection-result-count  {
+    font-size: 14pt;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.selection-result-count {
+    font-size: 14pt ! important;
+}
+
+.toggle-artist > i {
+    font-size: 32pt;
+    position: relative;
+    top: 3pt;
+}
+
+
+
+/*
+th {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
+
+
+
+tr{
+    padding-top: 0px;
+    padding-bottom: 0px;
+    font-size: 10pt;
+}
+
+th{
+    padding-top: 0px;
+    padding-bottom: 0px;
+    font-size: 12pt ! important;
+}
+*/

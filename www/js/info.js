@@ -4,10 +4,12 @@ class SelectionTab {
     static MODE_ARTISTS="artists"
     static MODE_PLAYLIST="playlist"
     constructor(){
+        var self=this;
         this.dict_reulsts={}
         this.results=[]
         this.refer=[]
-        this.set_mode(SelectionTab.MODE_PLAYLIST, false)
+        this.root=$("#info-list")
+        this.set_mode(SelectionTab.MODE_ARTISTS, false)
         this.mode_is_changing=false
         //this.current_mode="artists"
     }
@@ -15,14 +17,15 @@ class SelectionTab {
     select_all(type, id){
         if(type) $("input[data-type=track-checkbox][data-"+type+"id='"+id+"']").prop("checked", true)
         else $(".track-checkbox").prop("checked", true)
+        this.on_selection_changed()
     }
 
     unselect_all(type, id){
+        console.log("unselect all", type, id)
         if(type) $("input[data-type=track-checkbox][data-"+type+"id='"+id+"']").prop("checked", false)
         else $(".track-checkbox").prop("checked", false)
+        this.on_selection_changed()
     }
-
-
 
     get_selected(){
         var out={
@@ -118,6 +121,8 @@ class SelectionTab {
         this.show();
         $("#info-list").show()
         $("#no-info-list").hide()
+        this.on_selection_changed();
+        this.clear_filter_bar();
     }
 
     show_results(data){
@@ -138,6 +143,7 @@ class SelectionTab {
                 var albumid = Utils.randomId();
                 album["albumid"]=albumid;
                 album["artistid"]=artistid;
+                album["artist"]=artiste.name;
                 for (var k in album.tracks){
                     var track = album.tracks[k];
                     track["track"]=albumid;
@@ -149,7 +155,7 @@ class SelectionTab {
                 }
             }
         }
-        this._show_results(data)
+        this._show_results(data);
     }
 
     show(){
@@ -158,6 +164,117 @@ class SelectionTab {
 
     hide(){
         $("#info-tab-trigger").hide()
+    }
+
+    clear_filter_bar(){
+        $("#selection-filter-input").val("")
+        this.on_filter_input_change("")
+    }
+
+    count_visible_tracks(e){
+        var obj = {n:0}
+        e.find("[data-type=track]").each(function(i,e){
+            if($(e).data("visible")=="true") obj.n++;
+        })
+        return obj.n
+    }
+
+    count_checked_tracks(e){
+        var obj = {n:0}
+        e.find("[data-type='track-checkbox']").each(function(i,e){
+            if($(e).is(":checked")) obj.n++;
+        })
+        return obj.n
+    }
+
+    count_total_tracks(e){
+        return e.find("[data-type=track]").length;
+    }
+
+    on_filter_input_change(val){
+        var self=this;
+        var ptr = { n:0}
+        var patterns=val.toLowerCase().split(" ")
+        $("[data-type=track]").each(function(i,e){
+            e=$(e);
+            var search=e.data("search").toLowerCase();
+            var found=true;
+            for(var j in patterns){
+                if(patterns[j]!="" && !search.includes(patterns[j])){
+                    e.data("visible", "false")
+                    set_visible(e, false);
+                    return;
+                }
+            }
+            e.data("visible", "true")
+            set_visible(e, true);
+        })
+
+        if(this.current_mode==SelectionTab.MODE_ARTISTS){
+            $("[data-type=album]").each(function(i,e){
+                e=$(e);
+                var n = self.count_visible_tracks(e)
+                set_visible(e, n>0);
+            })
+            $("[data-type=artist]").each(function(i,e){
+                e=$(e);
+                var n = self.count_visible_tracks(e)
+                set_visible(e, n>0);
+            })
+        }
+    }
+
+    set_icon_checkbox_value(icon, n, total){
+        if(n==0){
+            icon.html("check_box_outline_blank")
+            icon.data("state", "false")
+        }else if(n==total){
+            icon.html("check_box")
+            icon.data("state", "true")
+        }else{
+            icon.html("indeterminate_check_box")
+            icon.data("state", "")
+        }
+    }
+
+    on_selection_changed(){
+        var self=this;
+        if(this.current_mode==SelectionTab.MODE_ARTISTS){
+            $("[data-type=album]").each(function(i,e){
+                e=$(e);
+                var albumid = e.data("albumid")
+                var n = self.count_checked_tracks(e)
+                var total = self.count_total_tracks(e)
+                var icon = e.find("#i-album-"+albumid)
+                e.find("#nb-selected-album-"+albumid).html(n)
+                e.find("#nb-total-album-"+albumid).html(total)
+                self.set_icon_checkbox_value(icon, n, total)
+            })
+            $("[data-type=artist]").each(function(i,e){
+                e=$(e);
+                var artistid = e.data("artistid")
+                var n = self.count_checked_tracks(e)
+                var total = self.count_total_tracks(e)
+                var icon = e.find("#i-artist-"+artistid)
+                e.find("#nb-selected-artist-"+artistid).html(n)
+                e.find("#nb-total-artist-"+artistid).html(total)
+                self.set_icon_checkbox_value(icon, n, total)
+            })
+        }
+        var n = this.count_total_tracks(this.root)
+        var total = this.count_checked_tracks(this.root)
+        $("#nb-selected").html(n)
+        $("#nb-total").html(total)
+        self.set_icon_checkbox_value($("#i-null-total"), n, total)
+    }
+
+    on_toggle_select(type, elem, id){
+        var state = elem.data("state")+"";
+        if(state=="true"){
+            this.unselect_all(type, id)
+        } else {
+            this.select_all(type, id)
+        }
     }
 
 }

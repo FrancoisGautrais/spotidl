@@ -1,31 +1,41 @@
+
+<!------------------------------------
+      Artist/Album/Track
+------------------------------------->
+
+
 <template id="template-track">
-<tr data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-url="{{url}}"  data-type="track">
-  <td>
-    <div class="form-check">
-    <input class="form-check-input track-checkbox" type="checkbox" value="" data-artistid="{{artistid}}"
-           data-albumid="{{albumid}}" data-url="{{url}}" data-type="track-checkbox" checked>
-    </div>
-    <div>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      {{track_number}} - {{name}}
-    </div>
-    </td>
-  <td>{{duration}}</td>
-</tr>
+  <tr data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-url="{{url}}"  data-type="track"
+          data-search="{{artist}} {{album}} {{name}}" data-visible="true">
+    <td class="selection-entry selection-entry-track">
+      <div class="form-check">
+      <input class="form-check-input track-checkbox" type="checkbox" value=""
+             data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-url="{{url}}"
+             data-type="track-checkbox" onchange="Selection.on_selection_changed()" checked>
+      </div>
+      <div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        {{track_number}} - {{name}}
+      </div>
+      </td>
+    <td class="selection-entry selection-entry-track">{{duration}}</td>
+  </tr>
 </template>
 
 <template id="template-album">
-<tr data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-type="album">
-  <td>
+<tr data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-type="album" data-search="{{artist}} {{name}}">
+  <td  class="selection-entry selection-entry-album">
     <span class="d-flex flex-row">
       <a class="toggle-album p-2"  onclick="Selection.toggle_table('album', '{{albumid}}')" data-artistid="{{artistid}}"
               data-albumid="{{albumid}}">
         <i class="material-icons">expand_more</i>
       </a>
-      <span class="select-album  p-2" >{{name}}</span>
-      <button class="btn fond-color-2 p-2 action-button" onclick="Selection.select_all('album', '{{albumid}}')">Tout cocher</button>
-      <button class="btn fond-color-2 p-2 action-button" onclick="Selection.unselect_all('album', '{{albumid}}')">Tout décocher</button>
-
+      <span class="select-album  p-2" >
+            <i id="i-album-{{albumid}}" class="material-icons color-2"
+               onclick="Selection.on_toggle_select('album',$(this), '{{albumid}}')" data-state="true">check_box</i>
+            {{name}} (<span id="nb-selected-album-{{albumid}}"></span>
+              / <span id="nb-total-album-{{albumid}}"></span>)
+      </span>
     </span>
     <table class="table select-title"  data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-type="album-content">
       <tbody>
@@ -37,18 +47,22 @@
 </template>
 
 <template id="template-artist">
-<div  data-artistid="{{artistid}}" data-type="artist">
+<div  data-artistid="{{artistid}}" data-type="artist" data-search="{{name}}">
   <table class="table select-artist">
     <thead>
       <tr>
-        <th scope="col">
+        <th scope="col" class="selection-entry selection-entry-artist">
           <span class="d-flex flex-row">
             <a class="toggle-artist p-2" onclick="Selection.toggle_table('artist', '{{artistid}}')" data-artistid="{{artistid}}">
               <i class="material-icons">expand_more</i>
             </a>
-            <span class=" p-2">{{name}}</span>
-            <button class="btn fond-color-2 p-2 action-button" onclick="Selection.select_all('artist', '{{artistid}}')">Tout cocher</button>
-            <button class="btn fond-color-2 p-2 action-button" onclick="Selection.unselect_all('artist', '{{artistid}}')">Tout décocher</button>
+            <span class="select-artist p-2">
+                   <i id="i-artist-{{artistid}}" class="material-icons color-3"
+                      onclick="Selection.on_toggle_select('artist',$(this), '{{artistid}}')" data-state="true">check_box</i>
+                  {{name}}(<span id="nb-selected-artist-{{artistid}}"></span>
+                  / <span id="nb-total-artist-{{artistid}}"></span>)
+
+            </span>
           </span>
         </th>
       </tr>
@@ -64,27 +78,27 @@
 <div data-template="template-artist" data-var="."></div>
 </template>
 
-
-
-
-
-
+<!------------------------------------
+      Playlist
+------------------------------------->
 
 <template id="template-playlist-elem">
-<tr data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-url="{{url}}"  data-type="track">
-  <td>
+<tr data-artistid="{{artistid}}" data-albumid="{{albumid}}"
+    data-url="{{url}}"  data-type="track" data-search="{{artist}} {{album}} {{name}}">
+  <td  class="selection-entry selection-entry-track">
     <div class="form-check">
       <input class="form-check-input track-checkbox" type="checkbox" value="" data-artistid="{{artistid}}"
-           data-albumid="{{albumid}}" data-url="{{url}}" data-type="track-checkbox" checked>
+           data-albumid="{{albumid}}" data-url="{{url}}" data-type="track-checkbox"
+            onchange="Selection.on_selection_changed()" checked>
     </div>
       <div>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         {{artist}}
       </div>
   </td>
-  <td>{{track_number}} - {{name}}</td>
-  <td>{{album}}</td>
-  <td>{{duration}}</td>
+  <td class="selection-entry selection-entry-track">{{track_number}} - {{name}}</td>
+  <td class="selection-entry selection-entry-track">{{album}}</td>
+  <td class="selection-entry selection-entry-track">{{duration}}</td>
 </tr>
 </template>
 
@@ -120,6 +134,23 @@
     <button class="root-control-btn btn fond-color-3 color-4" onclick="Selection.unfold_all()">Tout déplier</button>
     <button class="root-control-btn btn fond-color-1 color-4" onclick="Selection.fold_all()">Tout replier</button>
     <button class="root-control-btn btn btn-secondary" onclick="Selection.cancel()">Annuler</button>
+  </div>
+
+  <div class="row filter-bar input-group mb-3">
+    <input type="text" class="form-control"
+           placeholder="Filtrer" id="selection-filter-input"
+           aria-label="Filtrer" onkeyup="Selection.on_filter_input_change($(this).val())">
+    <div class="input-group-append">
+      <a class="btn btn-outline-secondary" type="button" onclick="Selection.clear_filter_bar()">
+        <i class="material-icons">clear</i>
+      </a>
+    </div>
+  </div>
+
+  <div class="row selection-result-count">
+    <i id="i-null-total" class="material-icons color-1"
+               onclick="Selection.on_toggle_select(null,$(this), 'total')" data-state="true">check_box</i>
+    Sélection: &nbsp;&nbsp;&nbsp; <span id="nb-selected"></span> / <span id="nb-total"></span>
   </div>
 
   <div id="template-root" class="row">

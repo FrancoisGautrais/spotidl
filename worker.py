@@ -6,6 +6,9 @@ import time
 from http_server import log
 from spotdl.command_line.exceptions import NoYouTubeVideoFoundError
 
+from TrackSet import TrackEntry
+
+
 class DownloadProgress:
     def __init__(self, handler):
         self.total_size=0
@@ -126,7 +129,6 @@ class Worker(ExceptionThread):
 
         if not self.current_track:
             return
-
         try:
             self._state= Worker.STATE_FETCH_METADATA
             self.spot.download(self.current_track, self.progress)
@@ -134,6 +136,8 @@ class Worker(ExceptionThread):
                 self.fifo.done(self.current_track)
             self._state= Worker.STATE_IDLE
         except NoYouTubeVideoFoundError as err:
+            track = self.current_track
+            log.error("Impossible de télécharger '%s' : %s"%(track.name, str(err)))
             self.fifo.error(self.current_track, "NoYouTubeVideoFoundError : "+str(err))
         self.current_track=None
 

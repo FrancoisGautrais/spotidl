@@ -211,8 +211,6 @@ class Downloader:
     def done(self, track):
         self.lock()
         self._done.append(track)
-        if len(self._done)>=Downloader.DONE_SIZE:
-            self._done=self._done[-Downloader.DONE_SIZE:]
         self.unlock()
 
     def clear(self):
