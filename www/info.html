@@ -17,8 +17,8 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         {{track_number}} - {{name}}
       </div>
-      </td>
-    <td class="selection-entry selection-entry-track">{{duration}}</td>
+    </td>
+    <td class="selection-entry selection-entry-track no-mobile">{{duration}}</td>
   </tr>
 </template>
 
@@ -128,22 +128,22 @@
 
 <div id="info-list" class="hidden">
   <div class="row">
-    <button class="root-control-btn btn fond-color-2" onclick="Selection.download()">Télécharger</button>
-    <button class="root-control-btn btn fond-color-3 color-4" onclick="Selection.select_all()">Tout sélectionner</button>
-    <button class="root-control-btn btn fond-color-1 color-4" onclick="Selection.unselect_all()">Tout désélectionner</button>
-    <button class="root-control-btn btn fond-color-3 color-4" onclick="Selection.unfold_all()">Tout déplier</button>
-    <button class="root-control-btn btn fond-color-1 color-4" onclick="Selection.fold_all()">Tout replier</button>
-    <button class="root-control-btn btn btn-secondary" onclick="Selection.cancel()">Annuler</button>
-  </div>
+    <div class="col-sm  row">
+      <i class="material-icons selection-action col" onclick="Selection.download()">download</i>
+      <i class="material-icons selection-action col" onclick="Selection.unfold_all()">unfold_more</i>
+      <i class="material-icons selection-action col" onclick="Selection.fold_all()">unfold_less</i>
+      <i class="material-icons selection-action col" onclick="Selection.cancel()">cancel</i>
+    </div>
 
-  <div class="row filter-bar input-group mb-3">
-    <input type="text" class="form-control"
-           placeholder="Filtrer" id="selection-filter-input"
-           aria-label="Filtrer" onkeyup="Selection.on_filter_input_change($(this).val())">
-    <div class="input-group-append">
-      <a class="btn btn-outline-secondary" type="button" onclick="Selection.clear_filter_bar()">
-        <i class="material-icons">clear</i>
-      </a>
+    <div class="col-sm filter-bar input-group mb-3">
+      <input type="text" class="form-control"
+             placeholder="Filtrer" id="selection-filter-input"
+             aria-label="Filtrer" onkeyup="Selection.on_filter_input_change($(this).val())">
+      <div class="input-group-append">
+        <a class="btn btn-outline-secondary" type="button" onclick="Selection.clear_filter_bar()">
+          <i class="material-icons">clear</i>
+        </a>
+      </div>
     </div>
   </div>
 

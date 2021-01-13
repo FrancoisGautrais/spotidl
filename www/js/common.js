@@ -54,6 +54,7 @@ function toast(html, duration=5000){
             notification_close(not)
         }, duration);
     }
+    return not;
 }
 
 function toast_error(html){
@@ -61,6 +62,7 @@ function toast_error(html){
     var id = "notificationid-"+Date.now()
     var not = $('<div class="notification notification-error" id="'+id+'" onclick="notification_close($(this))">'+html+'</div>')
     host.append(not)
+    return not;
 }
 
 function toast_warning(html, duration=60000){
@@ -73,6 +75,7 @@ function toast_warning(html, duration=60000){
             notification_close(not)
         }, duration);
     }
+    return not;
 }
 
 
@@ -286,3 +289,52 @@ var App = new Application();
 Template.ready(function(){
     App.on_template_init();
 })
+
+
+
+class MenuWidget {
+    constructor() {
+        var self = this;
+        this.overlay=$('<div class="menu-overlay hidden"></div>')
+        this.host=$('<div class="menu-host hidden"></div>')
+        this.menu_trigger=$(".menu-icon")
+        this.host.append($(".root-menu"))
+
+        this.overlay.on("click", function(){
+            self.toggle();
+        })
+        this.menu_trigger.on("click", function(){
+            self.toggle();
+        })
+        this.host.find("[data-dismiss=menu]").each(function(i,e){
+            e=$(e);
+            e.on("click", function(){
+                self.hide();
+            })
+        })
+        $("body").append(this.overlay)
+        $("body").append(this.host)
+    }
+
+    show() {
+        console.log("Menu.show()")
+        this.host.show();
+        this.overlay.show();
+    }
+
+    hide() {
+        console.log("Menu.hide()")
+        this.host.hide();
+        this.overlay.hide();
+    }
+
+    is_visible() {
+        return this.host.is(":visible");
+    }
+
+    toggle() {
+        return this.is_visible()?this.hide():this.show();
+    }
+}
+
+var Menu = new MenuWidget();

@@ -261,8 +261,8 @@ class SelectionTab {
                 self.set_icon_checkbox_value(icon, n, total)
             })
         }
-        var n = this.count_total_tracks(this.root)
-        var total = this.count_checked_tracks(this.root)
+        var n = this.count_checked_tracks(this.root)
+        var total =  this.count_total_tracks(this.root)
         $("#nb-selected").html(n)
         $("#nb-total").html(total)
         self.set_icon_checkbox_value($("#i-null-total"), n, total)

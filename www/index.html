@@ -20,23 +20,24 @@
     <title>Spotify Downloader</title>
   </head>
   <body>
-    <#include("modals.html")>
     <#include("ui.html")>
+    <#include("modals.html")>
     <nav class="navbar navbar-expand-lg fond-color-1 color-4">
+      <i class="material-icons menu-icon color-4">menu</i>
       <a class="navbar-brand" >Spotify Downloader</a>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="nav navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link nav-item color-4" href="#search-tab" data-toggle="tab">Rechercher</a>
+            <a id="search-tab-trigger" class="nav-link nav-item color-4" href="#search-tab" data-toggle="tab">Rechercher</a>
           </li>
           <li class="nav-item">
             <a id="info-tab-trigger" class="nav-link nav-item color-4" href="#info-tab" data-toggle="tab">Sélection</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link nav-item color-4" href="#queue-tab" data-toggle="tab">File d'attente</a>
+            <a id="queue-tab-trigger" class="nav-link nav-item color-4" href="#queue-tab" data-toggle="tab">File d'attente</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link nav-item color-4" href="#parameters-tab" data-toggle="tab">Paramètres</a>
+            <a id="parameters-tab-trigger" class="nav-link nav-item color-4" href="#parameters-tab" data-toggle="tab">Paramètres</a>
           </li>
         </ul>
       </div>

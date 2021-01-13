@@ -8,6 +8,7 @@ class ParametersTab
         this.config={}
         this.recieved_config={}
         this.load();
+        this.current_toast=null;
     }
 
     save(){
@@ -122,13 +123,18 @@ class ParametersTab
         API.subsonic_status_scan({
             success: function(d){
                 if(d.scanning){
+                    var text  = "Scan en cours "+d.count+" fichiers trouvés "
+                    if(!self.current_toast){
+                        self.current_toast=toast(text, 0);
+                    }
                     setTimeout(function(){
                         self._subsonic_status()
                     }, 500)
+                    self.current_toast.html(text)
                 }else{
-                    toast("Scan terminé: "+d.count+" chansons trouvées")
+                    if(self.current_toast) self.current_toast.remove();
+                    toast("Scan terminé: "+d.count+" chansons trouvées", 20000)
                 }
-
             }
         })
     }
@@ -137,6 +143,7 @@ class ParametersTab
     {
         var data = this.db.updateFields()
         var self=this
+        this.current_toast=null;
         if(! dict_compare(this.recieved_config.subsonic,data.subsonic)){
             modal_alert("Modification non sauvegardés",
             "Merci de sauvegarder (redémarrage non nécessaire) avant de faire cette action")

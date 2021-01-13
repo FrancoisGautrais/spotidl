@@ -81,6 +81,7 @@ class DlServer(RESTServer):
         debug=True
         self.route_file_meta("GET", "/", "%s/index.html" % www,needAuth=self.enable_auth, cached=False, debug=debug)
         self.route_file_meta("GET", "/login", "%s/login.html" % www,needAuth=False, cached=False, debug=debug)
+        self.route_file("GET", "/favicon.ico", "%s/favicon.ico" % www)
 
     def do_continue(self):
         return self._do_continue

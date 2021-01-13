@@ -1,9 +1,48 @@
-.toggle-album{
-    margin-left: 40px;
-    color: black;
-    padding-top: 0px !important;
-    padding-bottom: 0px !important;
+
+@media (max-width: 960px){
+    .select-title {
+        margin-left: 0px;
+        width: calc(100% - 0px);
+    }
+    .toggle-album{
+        margin-left: 0px;
+        color: black;
+        padding-top: 0px !important;
+        padding-bottom: 0px !important;
+    }
+    .no-mobile {
+        display: none;
+    }
+    th{
+        margin-left: 0px;
+        margin-right: 0px;
+        padding-left: 0px ! important;
+        padding-right: 0px ! important;
+    }
+    .selection-entry-album  {
+        margin-left: 0px;
+        margin-right: 0px;
+        padding-left: 0px ! important;
+        padding-right: 0px ! important;
+    }
 }
+@media only screen and (min-width: 960px){
+    .select-title {
+        margin-left: 80px;
+        width: calc(100% - 80px);
+    }
+    .toggle-album{
+        margin-left: 20px;
+        color: black;
+        padding-top: 0px !important;
+        padding-bottom: 0px !important;
+    }
+    .no-mobile {
+        display: block;
+    }
+}
+
+
 
 .toggle-album > i {
     font-size: 32pt;
@@ -34,10 +73,6 @@
 }
 
 
-.select-title {
-    margin-left: 120px;
-    width: calc(100% - 120px);
-}
 
 .filter-bar{
 
@@ -54,17 +89,17 @@
 }
 
 .selection-entry-track {
-    font-size: 12pt ! important;
+    font-size: 10pt ! important;
     padding-top: 10px ! important;
     padding-bottom: 10px ! important;
 }
 
 .selection-entry-album {
-    font-size: 13pt ! important;
+    font-size: 11pt ! important;
 }
 
 .selection-entry-artist {
-    font-size: 14pt ! important;
+    font-size: 12pt ! important;
 }
 
 .select-album > i {
@@ -98,7 +133,15 @@
     top: 3pt;
 }
 
+.selection-action {
+    font-size: 40px;
+    position: relative;
+    top: 5pt;
+}
 
+.input-group-append > a  {
+    padding-bottom: 0px ! important;
+}
 
 /*
 th {
