@@ -241,10 +241,8 @@ class DlServer(RESTServer):
         res.serv_json_ok(config.cfg.config)
 
     def api_search(self, req : HTTPRequest, res : HTTPResponse, session=None, user=None):
-        type="artist"
-        if "type" in req.query:
-            type=req.query["type"]
-        res.serv_json_ok(self.dl.search(req.params["q"], type))
+        data = req.query if req.method=="GET" else req.body_json()
+        res.serv_json_ok(self.dl.search(req.params["q"], data))
 
     def api_queue(self, req : HTTPRequest, res : HTTPResponse, session=None, user=None):
         res.serv_json_ok(self.dl.json())

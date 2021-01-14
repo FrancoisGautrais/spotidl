@@ -1,44 +1,92 @@
-<div class="row">
-    <h1>Rechecher</h1>
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" id="search-bar" data-bind="search-value"
-        placeholder="Entrez l'URL spotify d'un titre, d'un artiste oud'un album"
-        aria-label="" aria-describedby="basic-addon1" onkeyup="Search.search(this)">
-        <div class="input-group-append">
-            <a class="btn btn-outline-secondary" type="button" onclick="Search.on_send()"><i class="material-icons md-48">send</i></a>
+
+<div id="simple-search">
+    <div class="row">
+        <h1>Recheche</h1>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="search-bar" data-bind="search-value"
+            placeholder="Entrez l'URL spotify, un titre, un artiste ou un album"
+            aria-label="" aria-describedby="basic-addon1" onkeyup="Search.search(this)">
+            <div class="input-group-append">
+                <a class="btn btn-outline-secondary" type="button" onclick="Search.on_send()"><i class="material-icons md-48">send</i></a>
+            </div>
+        </div>
+        <div class="search-mode">
+            <a class="btn btn-search-mode color-3" onclick="show_advanced_search()">Recherche Avancée</a>
+        </div>
+
+        <div class="or-upload hidden">ou envoyer un fichier d'url<br></div>
+            <div class="input-group mb-3 hidden">
+                <form enctype="multipart/form-data">
+                    <input class="btn btn-light" name="file" type="file" id="file-value" />
+                    <input class="btn btn-success" type="button" onclick="Search.on_upload()"  value="Envoyer" />
+                </form>
         </div>
     </div>
 
-    <div class="or-upload hidden">ou envoyer un fichier d'url<br></div>
-        <div class="input-group mb-3 hidden">
-            <form enctype="multipart/form-data">
-                <input class="btn btn-light" name="file" type="file" id="file-value" />
-                <input class="btn btn-success" type="button" onclick="Search.on_upload()"  value="Envoyer" />
-            </form>
+    <div id="search_results" class="row" style="display: none;">
+      <div class="search-results-col col-sm"  >
+        <center>Artistes</center>
+        <div class="row" id="search-results-col-artist"> </div>
+      </div>
+      <div class="search-results-col col-sm">
+        <center>Albums</center>
+        <div class="row" id="search-results-col-album"> </div>
+      </div>
+      <div class="search-results-col col-sm">
+        <center>Chanson</center>
+        <div class="row" id="search-results-col-track"> </div>
+      </div>
     </div>
 </div>
 
 
 
-<div id="search_results" class="row" style="display: none;">
-  <div class="search-results-col col-sm"  >
-    <center>Artistes</center>
-    <div class="row" id="search-results-col-artist"> </div>
-  </div>
-  <div class="search-results-col col-sm">
-    <center>Albums</center>
-    <div class="row" id="search-results-col-album"> </div>
+<div id="advanced-search">
+    <div class="row">
+        <h1>Recheche</h1>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="advanced-search-bar" data-bind="search-value"
+            placeholder="Entrez l'URL spotify, un titre, un artiste ou un album"
+            aria-label="" aria-describedby="basic-addon1" onkeyup="AdvancedSearch.search($(this))">
+            <div class="input-group-append">
+                <a class="btn btn-outline-secondary" type="button" onclick="AdvancedSearch.on_send()"><i class="material-icons md-48">send</i></a>
+            </div>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="as-type" id="as-title" value="title">
+            <label class="form-check-label" for="as-title">Titres</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="as-type" id="as-album" value="album">
+            <label class="form-check-label" for="as-album">Albums</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="as-type" id="as-artist" value="artist" checked>
+            <label class="form-check-label" for="as-artist" >Artistes</label>
+        </div>
+        <div class="search-mode">
+            <a class="btn btn-search-mode color-3" onclick="show_simple_search()">Recherche simple</a>
+        </div>
+    </div>
 
-  </div>
-  <div class="search-results-col col-sm">
-    <center>Chanson</center>
-    <div class="row" id="search-results-col-track"> </div>
-  </div>
+    <div class="advanced_search_results_root hidden row">
+        <div id="advanced_search_results" class="row">
+            <div class="advanced-search-results">
+            </div>
+        </div>
+            <a id="advanced-results-prev" onclick="AdvancedSearch.prev()" class="col-sm">
+                <i class="material-icons">navigate_before</i>
+                &nbsp;
+            </a>
+            <a id="advanced-results-next" onclick="AdvancedSearch.next()" class="col-sm">
+                &nbsp;
+                <i class="material-icons">navigate_next</i>
+            </a>
+    </div>
 </div>
 
-
 <template id="template-album-short">
-  <div class="result-short result-short-album fond-color-2" onclick="Search.on_send('{{url}}')">
+  <div class="result-short result-short-album fond-color-2" onclick="search_on_send('{{url}}')">
       {{artists}} - {{name}} ({{date}})
   </div>
 </template>
@@ -49,7 +97,7 @@
 
 
 <template id="template-artist-short">
-    <div class="result-short result-short-artist fond-color-1 color-4" onclick="Search.on_send('{{url}}')">
+    <div class="result-short result-short-artist fond-color-1 color-4" onclick="search_on_send('{{url}}')">
         <img class="artist-image-short" src="{{image}}">
         {{name}}
     </div>
@@ -61,7 +109,7 @@
 
 
 <template id="template-track-short">
-  <div class="result-short result-short-track fond-color-3 color-4" onclick="Search.on_send('{{url}}')">
+  <div class="result-short result-short-track fond-color-3 color-4" onclick="search_on_send('{{url}}')">
       {{artist}} - {{name}}
   </div>
 </template>

@@ -228,13 +228,17 @@ class Application{
         this._is_init=false;//template
         this._is_loaded=false; //load
         this._to_load={}
-        this._ready={}
+        this._ready=[]
     }
 
     call_ready(){
         for(var k in this._ready){
             this._ready[k]()
         }
+    }
+
+    ready(fct){
+        this._ready.push(fct)
     }
 
     finished(id){

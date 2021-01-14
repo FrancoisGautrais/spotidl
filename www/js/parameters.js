@@ -156,7 +156,6 @@ class ParametersTab
             })
         }
     }
-
 }
 
 var Config = null;

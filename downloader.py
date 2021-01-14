@@ -280,8 +280,8 @@ class Downloader:
     def cancel_running(self, url, isManual=False):
         return self._restart_running(url, False, isManual)
 
-    def search(self, query, type):
-        return self.spot.search(query, type)
+    def search(self, query, opt):
+        return self.spot.search(query, opt)
 
     def prepend(self, track):
         self.lock()

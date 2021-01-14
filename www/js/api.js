@@ -240,8 +240,10 @@ class DlAPI
     static SEARCH_ALBUM="album"
     static SEARCH_ALBUM="track"
     static SEARCH_ARTIST="artist"
-    search(text, type, opt={}){
-        return this.ajax_get("search/"+text+"?type="+type, opt)
+
+    search(text, data, opt={}){
+        data=Object.assign({type: "artist,track,album", offset: 0, limit: 10}, data)
+        return this.ajax_get("search/"+text+"?type="+data.type+"&offset="+data.offset+"&limit="+data.limit, opt)
     }
 }
 

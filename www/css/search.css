@@ -20,3 +20,44 @@
     padding: 5px;
     width: 100%;
 }
+
+.advanced_search_results_root {
+    margin-left: 0px;
+    padding-left: 0px;
+    margin-top: 20px;
+}
+
+.btn-search-mode {
+    margin-left: 0px;
+    padding: 0px;
+}
+
+.search-mode {
+    display: block;
+    width: 100%;
+}
+
+#advanced-results-prev
+{
+
+}
+
+#advanced-results-prev > i
+{
+    font-size: 48px;
+}
+
+#advanced-results-next
+{
+}
+
+#advanced-results-next > i
+{
+    font-size: 48px;
+    float: right;
+}
+
+.row {
+    margin-left: 0px;
+    margin-right: 0px;
+}

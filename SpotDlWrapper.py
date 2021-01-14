@@ -43,8 +43,8 @@ class SpotDlWrapper:
         self.tool=SpotifyHelpers(self.spotipy)
 
 
-    def search(self, query, type):
-        return self.spotipy.search(query, type=type)
+    def search(self, query, opt):
+        return self.spotipy.search(query, limit=opt["limit"], offset=opt["offset"], type=opt["type"])
 
     def download_track(self, track, progress, youtubeurl=None):
         log.debug("Récupération des metadata %s " % track)
