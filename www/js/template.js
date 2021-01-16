@@ -51,6 +51,41 @@ class Utils
         }
         return out;
     }
+
+    static zeroPadding(s, n){
+        var prefix="";
+        n-=s.length;
+
+        while(n>0){
+            prefix+="0";
+        }
+        return prefix+s;
+    }
+
+    static timestampToStr(UNIX_timestamp){
+        var a = new Date(UNIX_timestamp * 1000);
+        var year = a.getFullYear();
+        var month = a.getMonth()+1;
+        var date = a.getDate();
+        var hour = a.getHours();
+        var min = a.getMinutes();
+        var sec = a.getSeconds();
+        date=Utils.zeroPadding(date, 2);
+        month=Utils.zeroPadding(month, 2);
+        year=Utils.zeroPadding(year, 2);
+        hour=Utils.zeroPadding(hour, 2);
+        min=Utils.zeroPadding(min, 2);
+        sec=Utils.zeroPadding(sec, 2);
+        var time = date + '/' + month + '/' + year + ' - ' + hour + ':' + min + ':' + sec ;
+        return time;
+    }
+
+    static dictToParams(obj){
+        var str = [];
+        for(var p in obj)
+         str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+        return str.join("&");
+    }
 }
 
 class Template {
@@ -114,9 +149,10 @@ class Template {
         return fakeroot.children()
     }
 
-    static replace(src, data={}){
+    static replace(src, data={}, templateid=null){
+        var tid = templateid?templateid:src.attr("data-template")
         data=Template.parameter_to_json(src.data("param"), data)
-        var dst = Template.instanciate(src.attr("data-template"), data)
+        var dst = Template.instanciate(tid, data)
         if(!dst) return;
         dst.insertAfter(src)
         src.remove()

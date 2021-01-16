@@ -86,20 +86,35 @@ class User:
             ))
         self.conn.commit()
 
-    def get_log(self, type=None):
+    LOG_DEFAULT_QUERY={
+        "offset" : 0,
+        "limit" : 50,
+        "type" : "track",
+        "date-min" : None,
+        "date-max" : None
+    }
+    def get_log(self, query=LOG_DEFAULT_QUERY):
         out=[]
-        if not type:
-            tmp=self.conn.exec("select data, type, timestamp from history where user='%s'"%self.id)
-        else:
-            tmp=self.conn.exec("select data, type, timestamp from history where user='%s' and type='%s'"%(
-                self.id, type))
+        prefix_count="select count(type) from history where user='%s'"%self.id
+        prefix="select data, type, timestamp from history where user='%s'"%self.id
+        q=""
+        if query["type"]!="all": q+=" and type='%s' "%query["type"]
+        if "date-min" in query and query["date-min"]: q+=" and timestamp>=%d" % query["date-min"]
+        if "date-max" in query and query["date-max"]: q+=" and timestamp<=%d" % query["date-max"]
+        suffix=" order by timestamp desc"
+        suffix+= (" limit %s " % query["limit"]) if query["limit"]!="-1" else ""
+        suffix+=(" offset %s " % query["offset"]) if query["offset"]!="0" else ""
+        tmp=self.conn.exec(prefix+q+suffix)
         for x in tmp:
             out.append({
                 "data" : json.loads(x[0].replace("°", "'")),
                 "type" : x[1],
                 "timestamp" : x[2]
             })
-        return out
+        return {
+            "data" : out,
+            "total" : self.conn.one(prefix_count+q)
+        }
 
 
     def clear_logs(self):

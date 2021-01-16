@@ -158,19 +158,19 @@ class DlServer(RESTServer):
 
     def api_user_logs(self, req : HTTPRequest, res : HTTPResponse, session=None, user=None):
         if user:
-            res.serv_json_ok(user.get_log())
+            res.serv_json_ok(user.get_log(req.query))
         else:
             res.serv_json_ok([])
 
     def api_user_logs_tracks(self, req : HTTPRequest, res : HTTPResponse, session=None, user=None):
         if user:
-            res.serv_json_ok(user.get_log("track"))
+            res.serv_json_ok(user.get_log("track", req.query))
         else:
             res.serv_json_ok([])
 
     def api_user_logs_refer(self, req : HTTPRequest, res : HTTPResponse, session=None, user=None):
         if user:
-            res.serv_json_ok(user.get_log("refer"))
+            res.serv_json_ok(user.get_log("refer", req.query))
         else:
             res.serv_json_ok([])
 

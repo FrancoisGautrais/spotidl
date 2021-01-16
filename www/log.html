@@ -1,0 +1,55 @@
+
+
+
+
+<template id="template-log-entry">
+    <tr>
+        <td>{{refer}}:{{type}}</td>
+        <td>{{name}}</td>
+        <td>{{timestamp}}</td>
+    </tr>
+</template>
+
+<div id="log-div">
+
+    <div class="row">
+        <select class="custom-select col-sm" id="log_mode_select" onchange="Log.set_mode($(this).val())">
+            <option value="refer">Affichage par liens</option>
+            <option value="track">Affichage par piste</option>
+            <option value="all">Tout afficher</option>
+        </select>
+        <select class="custom-select col-sm" id="log_n_select">
+            <option value="20">20 par page</option>
+            <option value="50">50 par page</option>
+            <option value="100">100 par page</option>
+            <option value="-1">Tout afficher</option>
+        </select>
+        <a class="btn fond-color-2" onclick="Log.send()">Envoyer</a>
+
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Type</th>
+                <th scope="col">Nom</th>
+                <th scope="col">Date</th>
+            </tr>
+        </thead>
+        <tbody id="log-content">
+
+        </tbody>
+    </table>
+
+    <div class="row">
+        <a id="log-results-prev" onclick="Log.prev()" class="col-sm hidden">
+            <i class="material-icons">navigate_before</i>
+            &nbsp;
+        </a>
+        <a id="log-results-next" onclick="Log.next()" class="col-sm hidden">
+            &nbsp;
+            <i class="material-icons">navigate_next</i>
+        </a>
+    </div>
+
+</div>

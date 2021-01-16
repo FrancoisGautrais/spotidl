@@ -217,6 +217,12 @@ class DlAPI
         return this.ajax_post("restart/error/"+index, {url: url},opt)
     }
 
+    get_logs(data, opt={})
+    {
+
+        return this.ajax_get("user/logs?"+Utils.dictToParams(data),opt)
+    }
+
     ping(url, opt={})
     {
         opt=Object.assign({

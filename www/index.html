@@ -15,6 +15,7 @@
     <link href="/css/queue.css" rel="stylesheet"  data-include="">
     <link href="/css/search.css" rel="stylesheet"  data-include="">
     <link href="/css/parameters.css" rel="stylesheet"  data-include="">
+    <link href="/css/log.css" rel="stylesheet"  data-include="">
 
 
     <title>Spotify Downloader</title>
@@ -39,6 +40,9 @@
           <li class="nav-item">
             <a id="parameters-tab-trigger" class="nav-link nav-item color-4" href="#parameters-tab" data-toggle="tab">Paramètres</a>
           </li>
+          <li class="nav-item">
+            <a id="log-tab-trigger" class="nav-link nav-item color-4" href="#log-tab" data-toggle="tab">Logs</a>
+          </li>
         </ul>
       </div>
     </nav>
@@ -57,6 +61,9 @@
         <div class="tab-pane" id="parameters-tab">
           <#include("parameters.html")>
         </div>
+        <div class="tab-pane" id="log-tab">
+          <#include("log.html")>
+        </div>
       </div>
     </div>
 
@@ -74,6 +81,7 @@
     <script src="js/search.js" data-include=""></script>
     <script src="js/queue.js" data-include=""></script>
     <script src="js/info.js" data-include=""></script>
+    <script src="js/log.js" data-include=""></script>
     <script src="js/parameters.js" data-include=""></script>
   </body>
 </html>
