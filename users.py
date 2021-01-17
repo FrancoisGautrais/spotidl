@@ -328,7 +328,7 @@ class Connector(SQConnector):
 
     def set_logged_track_state(self, track, commit=True):
         self.exec("update log_track set state='%s', error='%s', timestamp=%f where uuid='%s'"%(
-            track.state, track.error, time.time(), track.uuid
+            track.state, escape(track.error), time.time(), track.uuid
         ))
         if commit: self.commit()
 
@@ -336,7 +336,7 @@ class Connector(SQConnector):
         js, state, error = self.onerow("select data, state, error from log_track where uuid='%s'"%uuid, False)
         js = str2json(js)
         js["state"]=state
-        js["error"]=error
+        js["error"]=unescape(error)
         return js
 
 
