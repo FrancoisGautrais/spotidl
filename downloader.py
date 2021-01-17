@@ -137,7 +137,7 @@ class Downloader:
                     else:
                         self.cancel_running(track.url)
                 self._threads[i] = Worker(i, self)
-            elif th.get_track_time()>self.watchdog_time:
+            elif th.get_track_time()>self.watchdog_time and th.get_current_track():
                 track=th.get_current_track().fail()
                 log.e("WatchdogError : [%d] -> '%s' after %d sec tries: %d" % (i, track.url, int(th.get_track_time()),track.failcount))
                 if track.failcount<3:
@@ -257,7 +257,8 @@ class Downloader:
             trackid=trackid.split("/")[-1]
         for i  in range(len(self._threads)):
             thd=self._threads[i]
-            trid = thd.get_current_url().split("/")[-1]
+            url = thd.get_current_url()
+            trid = url.split("/")[-1]
             if trid == trackid:
                 thd.set_frozen(True)
                 track = thd.get_current_track()
