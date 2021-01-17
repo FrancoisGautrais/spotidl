@@ -16,14 +16,14 @@
 </template>
 
 
-<template id="TI-form-checkbox" data-param="value=;id=;label=;name=;type=checkbox;cast=bool">
+<template id="TI-form-checkbox" data-param="value=;id=;label=;name=;type=checkbox;cast=bool;text=">
     <div class="input-group" data-if="{{if}}">
         <span class="input-group-text">{{label}}</span>
         <div class="form-check" style="margin-left: 30px;">
           <input class="form-check-input"
                  data-bind="{{name}}:{{cast}}"
                  type="{{type}}" value="{{value}}">
-            Activer la prise en charge de subsonic
+            {{text}}
         </div>
     </div>
 </template>

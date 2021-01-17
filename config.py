@@ -6,7 +6,8 @@ DEFAULT_CONFIG={
     "server" : {
         "www" :  "www",
         "address" : "localhost",
-        "port" : 8080
+        "port" : 8080,
+        "debug" : True
     },
     "output" : {
         "extension" : "mp3",
@@ -17,8 +18,8 @@ DEFAULT_CONFIG={
     "utils" : {
         "ffmpeg" : "ffmpeg"
     },
-    "process" : {
-        "threads" : 1
+    "system" : {
+        "threads" : 4
     },
     "auth" : {
         "enable" : True,

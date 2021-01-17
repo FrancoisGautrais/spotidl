@@ -14,6 +14,7 @@
         <a data-template="TI-form-text" data-param="label=Dossier html;name=server.www"></a>
         <a data-template="TI-form-text" data-param="label=Adresse d'écoute;name=server.address"></a>
         <a data-template="TI-form-text" data-param="label=Adresse d'écoute;name=server.port;type=number;cast=int"></a>
+        <a data-template="TI-form-checkbox" data-param="label=Debug;name=server.debug;text=Activer le mode debug du serveur web"></a>
     </div>
     <div class="parameter-section">
         <h4>Fichiers générés</h4>
@@ -26,8 +27,12 @@
         <a data-template="TI-form-text" data-param="label=Chemin de FFMPEG;name=utils.ffmpeg"></a>
     </div>
     <div class="parameter-section">
+        <h4>Système</h4>
+        <a data-template="TI-form-text" data-param="label=Nombre de thread de travail;name=system.threads;type=number;cast=int"></a>
+    </div>
+    <div class="parameter-section">
         <h4>Subsonic</h4>
-        <a data-template="TI-form-checkbox" data-param="label=Activer;name=subsonic.enable"></a>
+        <a data-template="TI-form-checkbox" data-param="label=Activer;name=subsonic.enable;text=Activer la prise en charge de subsonic"></a>
         <a data-template="TI-form-text" data-param="label=URL du serveur;name=subsonic.url;if=subsonic.enable"></a>
         <a data-template="TI-form-text" data-param="label=Nom d'utilisateur;name=subsonic.user;if=subsonic.enable"></a>
         <a data-template="TI-form-text" data-param="label=Mot de passe;name=subsonic.password;type=password;if=subsonic.enable"></a>

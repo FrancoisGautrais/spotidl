@@ -41,7 +41,7 @@ class DlServer(RESTServer):
         self.users.exec("delete from queue;")"""
         # A supprimer fin
 
-        self.dl = Downloader(self.users, cfg["process.threads"])
+        self.dl = Downloader(self.users, cfg["system.threads"])
         self.dl.start()
 
 
@@ -88,7 +88,7 @@ class DlServer(RESTServer):
         self.precache(www)
         self.static("/", www, cached=True)
 
-        debug=True
+        debug=cfg["server.debug"]
         self.route_file_meta("GET", "/", "%s/index.html" % www,needAuth=self.enable_auth, cached=False, debug=debug)
         self.route_file_meta("GET", "/login", "%s/login.html" % www,needAuth=False, cached=False, debug=debug)
         self.route_file("GET", "/favicon.ico", "%s/favicon.ico" % www)
