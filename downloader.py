@@ -258,25 +258,26 @@ class Downloader:
         for i  in range(len(self._threads)):
             thd=self._threads[i]
             url = thd.get_current_url()
-            trid = url.split("/")[-1]
-            if trid == trackid:
-                thd.set_frozen(True)
-                track = thd.get_current_track()
-                thd.raise_exception()
-                #thd.join()
+            if url:
+                trid = url.split("/")[-1]
+                if trid == trackid:
+                    thd.set_frozen(True)
+                    track = thd.get_current_track()
+                    thd.raise_exception()
+                    #thd.join()
 
-                if restart:
-                    type=("mannuel" if isManual else "automatique")
-                    self.prepend(track)
-                    self.error(track, "Redémarrage %s"%type)
-                    log.w("Rédémarage %s de la piste '%s' "%(type, track.url))
-                else:
-                    type=("mannuelle" if isManual else "automatique")
-                    self.error(track, "Annulation %s"%type)
-                    log.w("Annulation %s de la piste '%s' "%(type, track.url))
+                    if restart:
+                        type=("mannuel" if isManual else "automatique")
+                        self.prepend(track)
+                        self.error(track, "Redémarrage %s"%type)
+                        log.w("Rédémarage %s de la piste '%s' "%(type, track.url))
+                    else:
+                        type=("mannuelle" if isManual else "automatique")
+                        self.error(track, "Annulation %s"%type)
+                        log.w("Annulation %s de la piste '%s' "%(type, track.url))
 
-                self._threads[i]=Worker(i, self)
-                return True
+                    self._threads[i]=Worker(i, self)
+                    return True
         return ok
 
     def restart_running(self, url, isManual=False):
