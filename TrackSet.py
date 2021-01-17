@@ -1,5 +1,8 @@
 from abc import ABCMeta, abstractmethod
 
+from http_server import utils
+
+
 class Jsonable:
     @abstractmethod
     def json(self):
@@ -38,6 +41,11 @@ class Refer:
     def add_track(self, url, x):
         self.data.append(ReferEntry(url, x.json(), "track"))
 
+
+    """
+    def add_track(self, url, x):
+        self.data.append(ReferEntry(url, x.json(), "track"))
+
     def add_artist(self, url, x):
         name="None"
         for k in x.artists:
@@ -66,7 +74,7 @@ class Refer:
 
     def add_playlist(self, url, x):
         self.data.append(ReferEntry(url, {
-        }, "playlist"))
+        }, "playlist"))"""
 
     def json(self):
         return self.data.json()
@@ -97,9 +105,18 @@ class ArtistEntryShort(Jsonable):
 
 
 class TrackEntry(Jsonable):
+    STATE_NONE="none"
+    STATE_QUEUED="queued"
+    STATE_ERROR="error"
+    STATE_OK="ok"
     def __init__(self, track):
         self.failcount=0
         self.youtube_url=None
+        self.uuid=utils.new_id()
+        self.album_uuid=0
+        self.artist_uuid=""
+        self.state=TrackEntry.STATE_NONE
+        self.error=None
         if track:
             self.artists=list(map(lambda x: ArtistEntryShort(x), track["artists"]))
             self.duration=None
@@ -111,7 +128,9 @@ class TrackEntry(Jsonable):
             self.name=track["name"]
             self.track_number=track["track_number"]
             self.album=track["album"] if "album" in track else "__none__"
+            self.year=track["year"] if "year" in track else "-00"
             if isinstance(self.album, dict):
+                self.year=self.album["release_date"][0:4]
                 self.album=self.album["name"]
         else:
             self.artists=[]
@@ -120,6 +139,7 @@ class TrackEntry(Jsonable):
             self.name=None
             self.track_number=None
             self.album=None
+            self.year=None
 
 
     @staticmethod
@@ -131,7 +151,13 @@ class TrackEntry(Jsonable):
         te.name=x["name"]
         te.track_number=x["track_number"]
         te.album=x["album"]
+        te.year=x["year"]
         te.youtube_url=x["youtube_url"] if "youtube_url" in x else None
+        te.uuid=x["uuid"]
+        te.album_uuid=x["album_uuid"]
+        te.artist_uuid=x["artist_uuid"]
+        te.state=x["state"]
+        te.error=x["error"]
         return te
 
     def json(self):
@@ -143,7 +169,13 @@ class TrackEntry(Jsonable):
             "name" : self.name,
             "track_number" : self.track_number,
             "album": self.album,
-            "youtube_url" : self.youtube_url
+            "year": self.year,
+            "youtube_url" : self.youtube_url,
+            "uuid" : self.uuid,
+            "album_uuid" : self.album_uuid,
+            "artist_uuid" : self.artist_uuid,
+            "state" : self.state,
+            "error" : self.error
         }
 
     def set_youtube_url(self, url):
@@ -168,6 +200,7 @@ class AlbumEntry(list,Jsonable):
         self.name=None
         self.year=None
         self.artists=[]
+        self.uuid=utils.new_id()
 
     def set_name(self, name): self.name=name
     def set_year(self, year): self.year=year
@@ -182,6 +215,7 @@ class AlbumEntry(list,Jsonable):
                 self.artists.append(x)
 
     def append(self, track):
+        track.album_uuid=self.uuid
         self.add_artist(track.artists)
         super().append(track)
 
@@ -190,7 +224,9 @@ class AlbumEntry(list,Jsonable):
             "type" : "album",
             "artists" : list(map( lambda x: x.json(), self.artists)),
             "name" : self.name,
-            "tracks" :  list(map( lambda x: x.json(), self))
+            "year" : self.year,
+            "tracks" :  list(map( lambda x: x.json(), self)),
+            "uuid" : self.uuid
         }
 
     def trackset(self):
@@ -208,6 +244,8 @@ class ArtistEntry(Jsonable):
     def __init__(self):
         self.tracks=[]
         self.albums={}
+        self.uuid=utils.new_id()
+        self.artist_uuid=""
 
     def set_name(self, n): self.name=n
 
@@ -218,12 +256,21 @@ class ArtistEntry(Jsonable):
             return
         if not isinstance(track, TrackEntry):
             track=TrackEntry(track)
+
         self.tracks.append(track)
+        track.artist_uuid=self.uuid
         alb = track.album
         if not alb: alb=None
         if not alb in self.albums:
             self.albums[alb]=AlbumEntry()
             self.albums[alb].set_name(alb)
+
+            try:
+                self.albums[alb].set_year(track.year)
+            except:
+                pass
+            self.albums[alb].artist_uuid=self.uuid
+
         self.albums[alb].append(track)
 
     def __str__(self): return self.str()
@@ -240,7 +287,8 @@ class ArtistEntry(Jsonable):
         return {
             "type" : "artist",
             "albums" : list(map(lambda x: x.json(), self.albums.values())),
-            "name" : self.name
+            "name" : self.name,
+            "uuid" : self.uuid
         }
 
 class TrackSet(Jsonable):
@@ -275,7 +323,6 @@ class TrackSet(Jsonable):
             self.artists[art]=ArtistEntry()
             self.artists[art].set_name(art)
         self.artists[art].append(track)
-
 
     def trackset(self):
         return self

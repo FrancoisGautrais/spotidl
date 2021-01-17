@@ -15,15 +15,15 @@ class SelectionTab {
     }
 
     select_all(type, id){
-        if(type) $("input[data-type=track-checkbox][data-"+type+"id='"+id+"']").prop("checked", true)
-        else $(".track-checkbox").prop("checked", true)
+        if(type) this.root.find("input[data-type=track-checkbox][data-"+type+"id='"+id+"']").prop("checked", true)
+        else this.root.find(".track-checkbox").prop("checked", true)
         this.on_selection_changed()
     }
 
     unselect_all(type, id){
         console.log("unselect all", type, id)
-        if(type) $("input[data-type=track-checkbox][data-"+type+"id='"+id+"']").prop("checked", false)
-        else $(".track-checkbox").prop("checked", false)
+        if(type) this.root.find("input[data-type=track-checkbox][data-"+type+"id='"+id+"']").prop("checked", false)
+        else this.root.find(".track-checkbox").prop("checked", false)
         this.on_selection_changed()
     }
 
@@ -33,7 +33,7 @@ class SelectionTab {
             refer: this.refer
         }
         var self = this
-        $("input[data-type=track-checkbox]:checked").each(function(i,e){
+        this.root.find("input[data-type=track-checkbox]:checked").each(function(i,e){
             var url = $(e).data("url");
             out.tracks.push(self.dict_reulsts[url])
         })
@@ -69,7 +69,7 @@ class SelectionTab {
     }
 
     unfold_all(){
-        var btn = $(".toggle-artist, .toggle-album").each(function(i, e){
+        var btn = this.root.find(".toggle-artist, .toggle-album").each(function(i, e){
             e=$(e);
             if(e.find("i").html()!="expand_more")
                 e.click()
@@ -77,7 +77,7 @@ class SelectionTab {
     }
 
     fold_all(){
-        var btn = $(".toggle-artist, .toggle-album").each(function(i, e){
+        var btn = this.root.find(".toggle-artist, .toggle-album").each(function(i, e){
             e=$(e);
             if(e.find("i").html()=="expand_more")
                 e.click()
@@ -95,14 +95,14 @@ class SelectionTab {
 
     toggle_table(type, id){
         var elem=null;
-        if(type=="artist") elem=$("tbody[data-artistid='"+id+"'][data-type='artist-content']")
-        if(type=="album") elem=$("table[data-albumid='"+id+"'][data-type='album-content']")
+        if(type=="artist") elem=this.root.find("tbody[data-artistid='"+id+"'][data-type='artist-content']")
+        if(type=="album") elem=this.root.find("table[data-albumid='"+id+"'][data-type='album-content']")
         elem.toggle()
         var child = $('<i class="material-icons">'+(elem.is(":visible")?'expand_more':'chevron_right')+'</i>')
         elem=null;
         var parent=null;
-        if(type=="artist") elem=$("a.toggle-artist[data-artistid='"+id+"']")
-        if(type=="album") elem=$("a.toggle-album[data-albumid='"+id+"']")
+        if(type=="artist") elem=this.root.find("a.toggle-artist[data-artistid='"+id+"']")
+        if(type=="album") elem=this.root.find("a.toggle-album[data-albumid='"+id+"']")
         elem.empty()
         elem.append(child)
     }
@@ -195,7 +195,7 @@ class SelectionTab {
         var self=this;
         var ptr = { n:0}
         var patterns=val.toLowerCase().split(" ")
-        $("[data-type=track]").each(function(i,e){
+        this.root.find("[data-type=track]").each(function(i,e){
             e=$(e);
             var search=e.data("search").toLowerCase();
             var found=true;
@@ -211,12 +211,12 @@ class SelectionTab {
         })
 
         if(this.current_mode==SelectionTab.MODE_ARTISTS){
-            $("[data-type=album]").each(function(i,e){
+            this.root.find("[data-type=album]").each(function(i,e){
                 e=$(e);
                 var n = self.count_visible_tracks(e)
                 set_visible(e, n>0);
             })
-            $("[data-type=artist]").each(function(i,e){
+            this.root.find("[data-type=artist]").each(function(i,e){
                 e=$(e);
                 var n = self.count_visible_tracks(e)
                 set_visible(e, n>0);
@@ -240,7 +240,7 @@ class SelectionTab {
     on_selection_changed(){
         var self=this;
         if(this.current_mode==SelectionTab.MODE_ARTISTS){
-            $("[data-type=album]").each(function(i,e){
+            this.root.find("[data-type=album]").each(function(i,e){
                 e=$(e);
                 var albumid = e.data("albumid")
                 var n = self.count_checked_tracks(e)
@@ -250,7 +250,7 @@ class SelectionTab {
                 e.find("#nb-total-album-"+albumid).html(total)
                 self.set_icon_checkbox_value(icon, n, total)
             })
-            $("[data-type=artist]").each(function(i,e){
+            this.root.find("[data-type=artist]").each(function(i,e){
                 e=$(e);
                 var artistid = e.data("artistid")
                 var n = self.count_checked_tracks(e)

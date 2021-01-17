@@ -1,23 +1,106 @@
 
 
+<!------------------------------------------
+                Templates
+------------------------------------------->
 
+<template id="template-log-entry-track-ok">
+    <a class="log-icon"><i class="material-icons color-2">done</i></a>
+</template>
+<template id="template-log-entry-track-error">
+    <a class="log-icon"><i class="material-icons color-1">clear</i></a>
+</template>
+<template id="template-log-entry-track-queued">
+    <a class="log-icon"><i class="material-icons color-3">queue_music</i></a>
+</template>
+<template id="template-log-entry-track-none">
 
-<template id="template-log-entry">
-    <tr>
-        <td>{{refer}}:{{type}}</td>
-        <td>{{name}}</td>
-        <td>{{timestamp}}</td>
-    </tr>
 </template>
 
+<template id="template-log-entry-table-ok">
+    <a class="log-icon"><i class="material-icons color-2">done</i></a>
+</template>
+<template id="template-log-entry-table-error">
+    <a class="log-icon"><i class="material-icons color-1">clear</i></a>
+</template>
+<template id="template-log-entry-table-running">
+    <a class="log-icon"><i class="material-icons color-3">queue_music</i></a>
+</template>
+<template id="template-log-entry-table-mixed">
+    <a class="log-icon"><i class="material-icons color-1">priority_high</i></a>
+</template>
+
+
+<template id="template-log-entry-track">
+  <tr data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-url="{{url}}"  data-type="track"
+          data-search="{{artist}} {{album}} {{name}}" data-visible="true">
+    <td class="selection-entry selection-entry-track">
+      <div>
+        <a data-template="template-log-entry-track-{{state}}"></a> {{track_number}} - {{name}}
+      </div>
+    </td>
+    <td class="selection-entry selection-entry-track no-mobile">{{duration}}</td>
+    <td class="selection-entry selection-entry-track no-mobile">{{timestamp}}</td>
+  </tr>
+</template>
+
+<template id="template-log-entry-album">
+<tr data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-type="album" data-search="{{artist}} {{name}}">
+  <td  class="selection-entry selection-entry-album">
+    <span class="d-flex flex-row">
+      <a class="toggle-album p-2"  onclick="Log.toggle_table('album', '{{albumid}}')" data-artistid="{{artistid}}"
+              data-albumid="{{albumid}}">
+        <i class="material-icons">expand_more</i>
+      </a>
+      <span class="select-album  p-2" >
+            <a data-template="template-log-entry-table-{{state}}"></a> {{name}} [{{year}}] ({{track_count}} pistes
+          {{#fail_count}}, <span class="color-1">{{fail_count}} erreurs</span> {{/fail_count}})
+      </span>
+    </span>
+    <table class="table select-title"  data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-type="album-content">
+      <tbody>
+        <tr data-template="template-log-entry-track" data-var="tracks"></tr>
+      </tbody>
+    </table>
+  </td>
+</tr>
+</template>
+
+
+<template id="template-log-entry-artist">
+    <div  data-artistid="{{artistid}}" data-type="artist" data-search="{{name}}">
+      <table class="table select-artist">
+        <thead>
+          <tr>
+            <th scope="col" class="selection-entry selection-entry-artist">
+              <span class="d-flex flex-row">
+                <a class="toggle-artist p-2" onclick="Log.toggle_table('artist', '{{artistid}}')" data-artistid="{{artistid}}">
+                  <i class="material-icons">expand_more</i>
+                </a>
+                <span class="select-artist p-2">
+                     <a data-template="template-log-entry-table-{{state}}"></a> {{name}} ({{album_count}} albums, {{track_count}} pistes
+                    {{#fail_count}},<span class="color-1"> {{fail_count}} erreurs</span> {{/fail_count}})
+                    à {{timestamp}}
+                </span>
+              </span>
+            </th>
+          </tr>
+        </thead>
+        <tbody data-artistid="{{artistid}}" data-type="artist-content">
+            <tr data-template="template-log-entry-album" data-var="albums"></tr>
+        </tbody>
+      </table>
+    </div>
+</template>
+
+
+
+<!------------------------------------------
+                Main
+------------------------------------------->
 <div id="log-div">
 
     <div class="row">
-        <select class="custom-select col-sm" id="log_mode_select" onchange="Log.set_mode($(this).val())">
-            <option value="refer">Affichage par liens</option>
-            <option value="track">Affichage par piste</option>
-            <option value="all">Tout afficher</option>
-        </select>
         <select class="custom-select col-sm" id="log_n_select">
             <option value="20">20 par page</option>
             <option value="50">50 par page</option>
@@ -28,18 +111,9 @@
 
     </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Type</th>
-                <th scope="col">Nom</th>
-                <th scope="col">Date</th>
-            </tr>
-        </thead>
-        <tbody id="log-content">
+    <div id="log-content">
 
-        </tbody>
-    </table>
+    </div>
 
     <div class="row">
         <a id="log-results-prev" onclick="Log.prev()" class="col-sm hidden">

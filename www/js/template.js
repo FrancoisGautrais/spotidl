@@ -54,10 +54,11 @@ class Utils
 
     static zeroPadding(s, n){
         var prefix="";
+        s=s+"";
         n-=s.length;
-
         while(n>0){
             prefix+="0";
+            n--;
         }
         return prefix+s;
     }

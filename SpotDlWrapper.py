@@ -135,7 +135,8 @@ class SpotDlWrapper:
         artist=self.spotipy._get_id("artist", artist_uri) if artist_uri else None
         for album in albums:
             if not artist_uri or  has_artist(album, artist):
-                ts.add_tracks(self.album_tracks(album["id"], artist_uri))
+                x=self.album_tracks(album["id"], artist_uri)
+                ts.add_tracks(x)
         return ts
 
     def album_tracks(self, album_uri, artist_uri=None):
@@ -148,11 +149,9 @@ class SpotDlWrapper:
             if not artist_uri or has_artist(track, artist):
                 n+=1
                 track["album"]=alb["name"]
+                track["year"]=(alb["release_date"][0:4] if "release_date" in alb else 0)
                 newTracks.append(track)
-        tmp["items"]=newTracks
-        tmp["total"]=n
-        return TrackSet(tmp["items"])
-
+        return TrackSet(newTracks)
 
     def _playlist_items(self, url, offset):
         return self.spotipy.playlist_items(url, offset=offset)

@@ -1,13 +1,4 @@
-
-
-
-
-
-
-
 import os
-
-
 
 from http_server import config
 
@@ -25,6 +16,9 @@ DEFAULT_CONFIG={
     },
     "utils" : {
         "ffmpeg" : "ffmpeg"
+    },
+    "process" : {
+        "threads" : 1
     },
     "auth" : {
         "enable" : True,

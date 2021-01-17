@@ -111,7 +111,12 @@ function process_input_track_spotify(track){
             id: track.id,
             name: track.name,
             track_number: "",
-            calss: ""
+            calss: "",
+            uuid: track.uuid,
+            album_uuid: track.album_uuid,
+            artist_uuid: track.artist_uuid,
+            state: track.state,
+            error: track.error
         }
     }else{
         return {
@@ -121,8 +126,14 @@ function process_input_track_spotify(track){
             artist : "none",
             artists : [],
             album : "none",
+            album : "0",
             track_number : "-",
-            class: "hidden"
+            class: "hidden",
+            uuid: "undefined",
+            album_uuid: "undefined",
+            artist_uuid: "undefined",
+            state: "undefined",
+            error: "undefined"
         }
     }
 }

@@ -28,13 +28,21 @@ class DlServer(RESTServer):
             }
         } if cfg["auth.enable"] else {})
         www=cfg["server.www"]
-        self.dl = Downloader()
         self.enable_auth=cfg["auth.enable"]
         self._do_continue=False
-        self.dl.start()
         self.subsonic=None
         if cfg["subsonic.enable"]:
             self.subsonic=Subsonic(cfg["subsonic"])
+
+        # A supprimer debut
+        """self.users.exec("delete from log_album;")
+        self.users.exec("delete from log_artist;")
+        self.users.exec("delete from log_track;")
+        self.users.exec("delete from queue;")"""
+        # A supprimer fin
+
+        self.dl = Downloader(self.users, cfg["process.threads"])
+        self.dl.start()
 
 
         self.route_auth("POST", "/api/command/subsonic/test", self.api_subsonic_test)
@@ -62,11 +70,13 @@ class DlServer(RESTServer):
         self.route_auth("GET", "/api/command/remove/done/#index", self.api_queue_remove_done)
         self.route_auth("GET", "/api/command/restart/error/#index", self.api_queue_restart_error)
         self.route_auth("POST", "/api/command/restart/error/#index", self.api_queue_manual_error)
+
         self.route_auth("GET", "/api/command/add/*url", self.api_add_get)
         self.route_auth("POST", "/api/command/add", self.api_add_post)
         self.route_auth("GET", "/api/command/list/*url", self.api_list_get)
         self.route_auth("GET", "/api/command/search/*q", self.api_search)
         self.route_auth("POST", "/api/command/list", self.api_list_post)
+
         self.route_auth("GET", "/api/command/user/logs", self.api_user_logs)
         self.route_auth("GET", "/api/command/user/logs/tracks", self.api_user_logs_tracks)
         self.route_auth("GET", "/api/command/user/logs/refer", self.api_user_logs_refer)
@@ -158,25 +168,25 @@ class DlServer(RESTServer):
 
     def api_user_logs(self, req : HTTPRequest, res : HTTPResponse, session=None, user=None):
         if user:
-            res.serv_json_ok(user.get_log(req.query))
+            res.serv_json_ok(self.users.get_log(req.query))
         else:
             res.serv_json_ok([])
 
     def api_user_logs_tracks(self, req : HTTPRequest, res : HTTPResponse, session=None, user=None):
         if user:
-            res.serv_json_ok(user.get_log("track", req.query))
+            res.serv_json_ok(self.users.get_log("track", req.query))
         else:
             res.serv_json_ok([])
 
     def api_user_logs_refer(self, req : HTTPRequest, res : HTTPResponse, session=None, user=None):
         if user:
-            res.serv_json_ok(user.get_log("refer", req.query))
+            res.serv_json_ok(self.users.get_log("refer", req.query))
         else:
             res.serv_json_ok([])
 
     def api_user_logs_clear(self, req : HTTPRequest, res : HTTPResponse, session=None, user=None):
         if user:
-            user.clear_logs()
+            self.users.clear_logs()
             res.serv_json_ok("success")
         else:
             res.serv_json_ok("success")
@@ -208,12 +218,14 @@ class DlServer(RESTServer):
         res.serv_json_ok(None)
         self.dl.stop(dump)
         self.set_continue(False)
+        self.users.close()
         self.stop()
 
     def api_restart(self, req: HTTPRequest, res: HTTPResponse, session=None, user=None):
         res.serv_json_ok(None)
         self.dl.stop(True)
         self.set_continue(True)
+        self.users.close()
         self.stop()
 
     def api_count(self, req : HTTPRequest, res : HTTPResponse, session=None, user=None):
@@ -304,30 +316,18 @@ class DlServer(RESTServer):
             res.serv_json_bad_request(str(err))
 
     def api_add_post(self, req : HTTPRequest, res : HTTPResponse, session=None, user=None):
-        if req.is_multipart():
-            file = req.multipart_next_file()
-            data=file.parse_content().decode("utf-8")
-            data=data.replace("\r", "").split("\n")
-            ts = TrackSet()
-            for url in data:
-                try:
-                    ts.add_tracks(self.dl.add_track(url))
-                except DownloaderException as err:
-                    pass
-            res.serv_json_ok(ts.json())
-        else:
-            body = req.body_json()
-            try:
-                out = self.dl.add_track(self.to_track_set(body["tracks"]))
-                if user:
-                    user.log_refer(body["refer"])
-                    user.log_tracks(body["tracks"])
-
-                res.serv_json_ok(out.json())
-            except spotipy.exceptions.SpotifyException as err:
-                res.serv_json_bad_request(str(err))
-            except DownloaderException as err:
-                res.serv_json_bad_request(str(err))
+        body = req.body_json()
+        try:
+            ts=self.to_track_set(body["tracks"])
+            if user:
+                self.users.log_refer(ts)
+            self.dl.add_track(ts)
+            js=ts.json()
+            res.serv_json_ok(js)
+        except spotipy.exceptions.SpotifyException as err:
+            res.serv_json_bad_request(str(err))
+        except DownloaderException as err:
+            res.serv_json_bad_request(str(err))
 
     def api_list_get(self, req : HTTPRequest, res : HTTPResponse, session=None, user=None):
         url = req.params["url"]
@@ -337,6 +337,7 @@ class DlServer(RESTServer):
         try:
             out = self.dl.get_info(url)
             res.serv_json_ok(out.json())
+
         except spotipy.exceptions.SpotifyException as err:
             res.serv_json_bad_request(str(err))
         except DownloaderException as err:
@@ -357,7 +358,8 @@ class DlServer(RESTServer):
         else:
             body = req.body_json()
             try:
-                out = self.dl.get_info(self.to_track_set(body))
+                tmp=self.to_track_set(body)
+                out = self.dl.get_info(tmp)
                 res.serv_json_ok(out.json())
             except spotipy.exceptions.SpotifyException as err:
                 res.serv_json_bad_request(str(err))

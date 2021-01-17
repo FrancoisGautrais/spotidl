@@ -86,6 +86,7 @@ class SimpleSearchTab
     handle_info(data)
     {
         var self=this;
+
         if(data.count>20){
             Loading.close()
             modal_download(data.count, function(){ //download all
@@ -186,6 +187,53 @@ class AdvancedSearchTab
             })
         }
     }
+
+    handle_download_all(data) {
+        var out={
+            tracks: [],
+            refer: data.refer
+        }
+
+        for(var i in data.artists){ //artists
+            var artiste = data.artists[i];
+            for(var j in artiste.albums){
+                var album = artiste.albums[j];
+                for (var k in album.tracks){
+                    out.tracks.push(album.tracks[k]);
+                }
+            }
+        }
+
+
+        API.add_post(out,{
+            success: function(d){
+                toast(d.count+" fichiers ajoutés !")
+                Loading.close()
+            }
+        });
+    }
+
+    handle_info(data)
+    {
+        var self=this;
+
+        if(data.count>20){
+            Loading.close()
+            modal_download(data.count, function(){ //download all
+                self.handle_download_all(data);
+            },
+            function(){ //select
+                Selection.show_results(data)
+            });
+            $("#advanced-search-bar").val("")
+            Queue.refresh();
+        }else{
+            self.handle_download_all(data);
+            $("#advanced-search-bar").val("")
+            Queue.refresh();
+        }
+    }
+
 
     find_selected_type(){
         return $("[name=as-type]:checked").attr("value")

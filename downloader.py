@@ -65,10 +65,11 @@ class Downloader:
 
     DONE_SIZE=1024
     THREAD_TIMEOUT=3600 #1h
-    def __init__(self, nThreads=1):
+    def __init__(self, db, nThreads=1):
         self.spot = SpotDlWrapper()
         self.fifo = FIFO()
         self._lock=Lock()
+        self.db=db
         self._done=JsonArray()
         self._threads=JsonArray()
         self._errors=JsonArray()
@@ -81,13 +82,13 @@ class Downloader:
             with open(self.dump_file) as f:
                 js = json.loads(f.read())
             os.remove(self.dump_file)
-            for track in js["queue"]:
-                self.fifo.push(TrackEntry.from_track_entry_json(track))
             for track in js["done"]:
                 self._done.append(TrackEntry.from_track_entry_json(track))
             for error in js["errors"]:
                 self._errors.append(JsonError.from_json(error))
 
+        for track in self.db.get_pended_queue():
+            self.fifo.push(track)
         self._watchdog=WatchDogThread(self)
         self._watchdog.start()
 
@@ -129,7 +130,7 @@ class Downloader:
             if not th.is_alive():
                 if th.get_current_track():
                     track = th.get_current_track().fail()
-                    log.e("WatchdogError : [%d] -> '%s' a crasher le thred %d fois" % (
+                    log.e("WatchdogError : [%d] -> '%s' a crasher le thread %d fois" % (
                                 i, track.url,  track.failcount))
                     if track.failcount < 3:
                         self.restart_running(track.url)
@@ -168,6 +169,7 @@ class Downloader:
 
     def error(self, track, reason="Unknown"):
         self._errors.append(JsonError(track, reason))
+        self.db.log_set_fail(track, reason)
 
     def check_alive(self):
         for i in range(len(self._threads)):
@@ -212,11 +214,13 @@ class Downloader:
         self.lock()
         self._done.append(track)
         self.unlock()
+        self.db.log_set_ok(track)
 
     def clear(self):
         self.lock()
         self.fifo.clear()
         self.unlock()
+        self.db.exec("delete from queue;")
 
     def clear_errors(self):
         self.lock()
@@ -287,6 +291,7 @@ class Downloader:
         self.lock()
         v = self.fifo.prepend(track)
         self.unlock()
+        self.db.log_set_queued(track)
 
     def remove_track(self, urls):
         if isinstance(urls, (list, tuple)):
@@ -298,6 +303,7 @@ class Downloader:
         for i in range(len(self.fifo.data)):
             x=self.fifo.data[i]
             if x and x.url and x.url.split("/")[-1]==urls:
+                self.db.remove_from_queue(self.fifo.data[i])
                 self.fifo.data[i]=None
         self.fifo.lock.release()
 
@@ -314,11 +320,16 @@ class Downloader:
 
             raise DownloaderException("add_track: la chaine passée (%s) n'est pas une url valide" % tracks)
         if isinstance(tracks, TrackSet):
-            return self._add_track(tracks.tracks)
+            for track in tracks.tracks:
+                self.fifo.push(track)
+                self.db.add_to_queue(track)
+
+            return tracks
         if isinstance(tracks, (list, tuple)):
             ts = TrackSet()
             for track in tracks:
                 self.fifo.push(track)
+                self.db.add_to_queue(track)
                 ts.add_tracks(track)
             return ts
         if isinstance(tracks, dict):
@@ -326,22 +337,21 @@ class Downloader:
 
         if isinstance(tracks, TrackEntry):
             self.fifo.push(tracks)
+            self.db.add_to_queue(tracks)
             return tracks
 
         raise DownloaderException("add_track: le type passé (%s) est inattendu " % type(tracks).__name__)
 
-
     def add_track(self, tracks):
-        tracks=self._add_track(tracks)
+        self._add_track(tracks)
+        self.db.commit()
         if isinstance(tracks, TrackEntry):
             return TrackSet(tracks)
         if isinstance(tracks, TrackSet):
             return tracks
-
         raise DownloaderException("Erreur Downloader.add_track() : type inattendu")
 
-
-    def _get_info(self, url, refer):
+    def _get_info(self, url, refer=None):
         if isinstance(url, str):
             if url.startswith("https://open.spotify.com/track/"):
                 track=self.spot.track(url)
@@ -349,42 +359,36 @@ class Downloader:
                 return self._get_info(track, None)
             if url.startswith("https://open.spotify.com/artist/"):
                 tracks=self.spot.artist_tracks(url)
-                if refer: refer.add_artist(url, tracks)
-                return self._get_info(tracks, None)
+                return self._get_info(tracks)
             if url.startswith("https://open.spotify.com/album/"):
                 tracks=self.spot.album_tracks(url)
-                if refer: refer.add_album(url, tracks)
-                return self._get_info(tracks, None)
+                return self._get_info(tracks)
             if url.startswith("https://open.spotify.com/playlist/"):
                 tracks=self.spot.playlist_tracks(url)
-                if refer: refer.add_playlist(url, tracks)
-                return self._get_info(tracks, None)
+                return self._get_info(tracks)
 
             raise DownloaderException("add_track: la chaine passée (%s) n'est pas une url valide" % url)
         if isinstance(url, TrackSet):
-            return self._get_info(url.tracks, None)
+            return self._get_info(url.tracks)
         if isinstance(url, (list, tuple)):
             ts = TrackSet()
             for track in url:
                 ts.add_tracks(track)
             return ts
         if isinstance(url, dict):
-            return self._get_info(TrackEntry(dict), None)
+            return self._get_info(TrackEntry(dict))
         if isinstance(url, TrackEntry):
             return url
 
         raise DownloaderException("add_track: le type passé (%s) est inattendu " % type(url).__name__)
 
     def get_info(self, url):
-        refer=Refer()
-        tracks=self._get_info(url, refer)
+        tracks=self._get_info(url)
 
         if isinstance(tracks, TrackEntry):
             ts= TrackSet(tracks)
-            ts.add_refer(refer)
             return ts
         if isinstance(tracks, TrackSet):
-            tracks.add_refer(refer)
             return tracks
 
         raise DownloaderException("Erreur Downloader.get_info() : type inattendu")

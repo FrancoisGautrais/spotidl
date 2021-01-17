@@ -10,3 +10,8 @@
     font-size: 48px;
     float: right;
 }
+
+.log-icon {
+    position: relative;
+    top: 6px;
+}
