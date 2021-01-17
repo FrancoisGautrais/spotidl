@@ -24,9 +24,11 @@ def json2str(x):
     return y
 
 def escape(x):
+    if x is None: return x
     return x.replace("'", "°")
 
 def unescape(x):
+    if x is None: return x
     return x.replace("°", "'")
 
 
