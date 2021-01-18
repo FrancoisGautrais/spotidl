@@ -61,3 +61,13 @@
     margin-left: 0px;
     margin-right: 0px;
 }
+
+.track-short-track {
+    font-size: 14pt;
+    font-weight: 600;
+}
+
+.album-short-album {
+    font-size: 14pt;
+    font-weight: 600;
+}
