@@ -112,6 +112,8 @@ function process_input_track_spotify(track){
             name: track.name,
             track_number: "",
             calss: "",
+            album: track.album.name,
+            year: track.album.release_date.substring(0,4),
             uuid: track.uuid,
             album_uuid: track.album_uuid,
             artist_uuid: track.artist_uuid,
@@ -174,6 +176,7 @@ function process_input_tracks_array(tracks, spot=false){
     for(var i in tracks){
         tracks[i]=spot?process_input_track_spotify(tracks[i]):process_input_track(tracks[i]);
         tracks[i].index=i;
+        console.log("track = ", tracks[i])
     }
     return tracks
 }

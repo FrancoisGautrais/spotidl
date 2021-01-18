@@ -86,7 +86,9 @@
 
 <template id="template-album-short">
   <div class="result-short result-short-album fond-color-2" onclick="search_on_send('{{url}}')">
-      {{artists}} - {{name}} ({{date}})
+      <b>Artiste : </b> {{artists}} <br>
+      <b>Album : </b> {{name}} <br>
+      <b>Année : </b> ({{date}})
   </div>
 </template>
 
@@ -109,7 +111,9 @@
 
 <template id="template-track-short">
   <div class="result-short result-short-track fond-color-3 color-4" onclick="search_on_send('{{url}}')">
-      {{artist}} - {{name}}
+      <b>Artiste : </b> {{artist}} <br>
+      <b>Album : </b> {{album}} ({{year}}) <br>
+      <b>Titre : </b> {{name}} <br>
   </div>
 </template>
 
