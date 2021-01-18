@@ -10,6 +10,8 @@ from SpotDlWrapper import SpotDlWrapper
 from fifio import FIFO
 from threading import Thread, Lock
 
+from process_interface import ProcessInterface, ProcessInterfaceUpdater
+from process_worker import ProcessWorker
 from worker import Worker, ExceptionThread
 
 
@@ -65,7 +67,7 @@ class Downloader:
 
     DONE_SIZE=1024
     THREAD_TIMEOUT=3600 #1h
-    def __init__(self, db, nThreads=1):
+    def __init__(self, db, nThreads=1, multiprocess=False):
         self.spot = SpotDlWrapper()
         self.fifo = FIFO()
         self._lock=Lock()
@@ -76,6 +78,7 @@ class Downloader:
         self._n_thread=nThreads
         self.watchdog_time=5*60
         self.dump_file="dump.json"
+        self._is_multiprocess=multiprocess
 
 
         if os.path.isfile(self.dump_file) and os.path.exists(self.dump_file):
@@ -89,8 +92,10 @@ class Downloader:
 
         for track in self.db.get_pended_queue():
             self.fifo.push(track)
-        self._watchdog=WatchDogThread(self)
-        self._watchdog.start()
+
+        if not self._is_multiprocess:
+            self._watchdog=WatchDogThread(self)
+            self._watchdog.start()
 
     def errors_count(self): return len(self._errors)
     def running_count(self): return len(self._threads)
@@ -164,14 +169,20 @@ class Downloader:
         }
 
     def start(self):
-        for i in range(self._n_thread):
-            self._threads.append(Worker(i, self))
+        if self._is_multiprocess:
+            for i in range(self._n_thread):
+                self._threads.append(ProcessInterface(i, self))
+            self._updater=ProcessInterfaceUpdater(self)
+        else:
+            for i in range(self._n_thread):
+                self._threads.append(Worker(i, self))
 
     def error(self, track, reason="Unknown"):
         self._errors.append(JsonError(track, reason))
         self.db.log_set_fail(track, reason)
 
     def check_alive(self):
+        if self._is_multiprocess: return
         for i in range(len(self._threads)):
             th = self._threads[i]
             if not th.is_alive():
@@ -232,8 +243,8 @@ class Downloader:
         self._done=JsonArray()
         self.unlock()
 
-    def pop(self):
-        y = self.fifo.pop()
+    def pop(self, block=True):
+        y = self.fifo.pop(block)
         return y
 
     def restart_error(self, i ):
@@ -252,6 +263,7 @@ class Downloader:
         return False
 
     def _restart_running(self, trackid, restart, isManual=False):
+        if self._is_multiprocess: return
         ok=False
         if trackid.startswith("https://"):
             trackid=trackid.split("/")[-1]

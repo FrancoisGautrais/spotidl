@@ -16,10 +16,17 @@ DEFAULT_CONFIG={
         "quality" : "best"
     },
     "utils" : {
-        "ffmpeg" : "ffmpeg"
+        "ffmpeg" : "ffmpeg",
+        "python" : "/usr/bin/python"
     },
     "system" : {
-        "threads" : 4
+        "threads" : 4,
+        "multiprocess" : {
+            "enable" : True,
+            "process" : 6,
+            "ip" : "localhost",
+            "port" : 56412
+        }
     },
     "auth" : {
         "enable" : True,

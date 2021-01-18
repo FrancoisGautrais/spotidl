@@ -25,10 +25,15 @@
     <div class="parameter-section">
         <h4>Outils</h4>
         <a data-template="TI-form-text" data-param="label=Chemin de FFMPEG;name=utils.ffmpeg"></a>
+        <a data-template="TI-form-text" data-param="label=Chemin de python;name=utils.python"></a>
     </div>
     <div class="parameter-section">
         <h4>Système</h4>
-        <a data-template="TI-form-text" data-param="label=Nombre de thread de travail;name=system.threads;type=number;cast=int"></a>
+        <a data-template="TI-form-checkbox" data-param="label=Multi processus;name=system.multiprocess.enable;text=Actier"></a>
+        <a data-template="TI-form-text" data-param="label=Nombre de thread de travail;name=system.threads;type=number;cast=int;if=!system.multiprocess.enable"></a>
+        <a data-template="TI-form-text" data-param="label=Nombre de processus;name=system.multiprocess.process;type=number;cast=int;if=system.multiprocess.enable"></a>
+        <a data-template="TI-form-text" data-param="label=Ip du serveur;name=system.multiprocess.ip;if=system.multiprocess.enable"></a>
+        <a data-template="TI-form-text" data-param="label=Port du serveur;name=system.multiprocess.port;type=number;cast=int;if=system.multiprocess.enable"></a>
     </div>
     <div class="parameter-section">
         <h4>Subsonic</h4>

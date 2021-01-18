@@ -21,6 +21,12 @@ class DownloadProgress:
     def progress(self, x):
         if isinstance(x, bytes): x=len(x)
         self.done+=x
+        self.handler.on_progress(x, self.done, self.total_size)
+        if self.done>=self.total_size and self.handler:
+            self.handler.on_download_finished(self)
+
+    def abs_progress(self, x):
+        self.done=x
         if self.done>=self.total_size and self.handler:
             self.handler.on_download_finished(self)
 
@@ -34,25 +40,25 @@ class DownloadProgress:
         return self.done>=self.total_size
 
 class ExceptionThread(threading.Thread):
-    def __init__(self, index):
+    def __init__(self, index=None):
         threading.Thread.__init__(self)
         self._lock=threading.Lock()
-        self._is_stopped=False
+        self.__is_stopped=False
         self._frozen=False
         self._index=index
         self._interrupted=False
 
-    def is_interrupt(self):
+    def _is_interrupt(self):
         return self._interrupted
 
     def is_stopped(self):
         x=True
         self.lock()
-        x=self._is_stopped
+        x=self.__is_stopped
         self.unlock()
         return x
 
-    def is_frozen(self):
+    def _is_frozen(self):
         x=True
         self.lock()
         x=self._frozen
@@ -71,13 +77,13 @@ class ExceptionThread(threading.Thread):
         while not self.is_stopped():
             self._interrupted=False
             self.main()
-            while self.is_frozen():
+            while self._is_frozen():
                 time.sleep(0.1)
         log.e("Thread %d fini"%self._index)
 
     def stop(self, force=False):
         self.lock()
-        self._is_stopped=True
+        self.__is_stopped=True
         self.unlock()
         if force:
             self.raise_exception()
@@ -100,28 +106,71 @@ class ExceptionThread(threading.Thread):
     def unlock(self):
         self._lock.release()
 
-class Worker(ExceptionThread):
+
+class AbsWorker:
 
     STATE_IDLE="IDLE"
     STATE_FETCH_METADATA="FETCH_METADATA"
     STATE_DOWNLOADING="DOWNLOADING"
-    def __init__(self, index, fifo):
-        super().__init__(index)
-        self.fifo=fifo
-        self.spot=fifo.spot
+    def __init__(self, index):
+        self.index=index
         self.current_track=None
         self._start_track_time=0
-        self._state=Worker.STATE_IDLE
-        self.progress=DownloadProgress(self)
+        self._state=AbsWorker.STATE_IDLE
         self.failcount=0
-        self.start()
-
+        self.progress=DownloadProgress(self)
 
     def get_current_track(self):
         return self.current_track
 
     def get_current_url(self):
         return self.current_track.url if self.current_track else None
+
+    def get_state(self):
+        return self._state
+
+    def get_track_time(self):
+        if self._start_track_time and self._state!=AbsWorker.STATE_IDLE:
+            return time.time()-self._start_track_time
+        return -1
+
+    def on_download_start(self, x):
+        self._state = AbsWorker.STATE_DOWNLOADING
+
+    def on_download_finished(self, x):
+        pass
+
+    def on_progress(self, chunk, done, total):
+        pass
+
+
+    def get_progress(self):
+        if self._state==AbsWorker.STATE_DOWNLOADING:
+            prg = self.progress.get_percent()
+            return prg
+        if self._state==AbsWorker.STATE_FETCH_METADATA:
+            return 0
+        return None
+
+    def json(self):
+        js= {
+            "id" : self.index,
+            "track" : self.current_track.json() if self.current_track else None,
+            "track_time" : self.get_track_time(),
+            "state" : self.get_state(),
+            "progress" : self.get_progress(),
+            "total_size" : self.progress.total_size
+        }
+        return js
+
+class Worker(ExceptionThread, AbsWorker):
+
+    def __init__(self, index, fifo):
+        ExceptionThread.__init__(self, index)
+        AbsWorker.__init__(self, index)
+        self.fifo=fifo
+        self.spot=fifo.spot
+        self.start()
 
     def main(self):
         self.current_track = self.fifo.pop()
@@ -130,47 +179,14 @@ class Worker(ExceptionThread):
         if not self.current_track:
             return
         try:
-            self._state= Worker.STATE_FETCH_METADATA
+            self._state= AbsWorker.STATE_FETCH_METADATA
             self.spot.download(self.current_track, self.progress)
-            if not self.is_interrupt():
+            if not self._is_interrupt():
                 self.fifo.done(self.current_track)
-            self._state= Worker.STATE_IDLE
+            self._state= AbsWorker.STATE_IDLE
         except NoYouTubeVideoFoundError as err:
             track = self.current_track
             log.error("Impossible de télécharger '%s' : %s"%(track.name, str(err)))
             self.fifo.error(self.current_track, "NoYouTubeVideoFoundError : "+str(err))
         self.current_track=None
 
-    def get_state(self):
-        return self._state
-
-    def on_download_start(self, x):
-        self._state = Worker.STATE_DOWNLOADING
-
-    def on_download_finished(self, x):
-        pass
-
-    def get_progress(self):
-        if self._state==Worker.STATE_DOWNLOADING:
-            prg = self.progress.get_percent()
-            return prg
-        if self._state==Worker.STATE_FETCH_METADATA:
-            return 0
-        return None
-
-
-    def get_track_time(self):
-        if self._start_track_time and self._state!=Worker.STATE_IDLE:
-            return time.time()-self._start_track_time
-        return -1
-
-    def json(self):
-        js= {
-            "id" : self._index,
-            "track" : self.current_track.json() if self.current_track else None,
-            "track_time" : self.get_track_time(),
-            "state" : self.get_state(),
-            "progress" : self.get_progress(),
-            "total_size" : self.progress.total_size
-        }
-        return js

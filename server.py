@@ -40,8 +40,11 @@ class DlServer(RESTServer):
         self.users.exec("delete from log_track;")
         self.users.exec("delete from queue;")"""
         # A supprimer fin
+        if cfg["system.multiprocess.enable"]:
+            self.dl = Downloader(self.users, cfg["system.multiprocess.process"], True)
+        else:
+            self.dl = Downloader(self.users, cfg["system.threads"], False)
 
-        self.dl = Downloader(self.users, cfg["system.threads"])
         self.dl.start()
 
 

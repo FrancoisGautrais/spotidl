@@ -31,7 +31,7 @@ class DataBind {
     __set_if_cb(self, trigger, inv){
         var fct = function(){
             var val = trigger.is(":checked");
-            set_visible(self, val);
+            set_visible(self, val^inv);
         }
         fct();
         var name = trigger.data("bind").split(":")[0]
