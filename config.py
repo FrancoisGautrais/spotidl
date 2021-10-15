@@ -1,6 +1,5 @@
 import os
-
-from http_server import config
+import sys
 
 DEFAULT_CONFIG={
     "server" : {
@@ -17,7 +16,7 @@ DEFAULT_CONFIG={
     },
     "utils" : {
         "ffmpeg" : "ffmpeg",
-        "python" : "/usr/bin/python"
+        "python" : "python"
     },
     "system" : {
         "threads" : 4,
@@ -44,6 +43,8 @@ DEFAULT_CONFIG={
     }
 }
 
+print("Here : %s" % sys.path)
+import magic
 from http_server import  config as _config
 
 cfg = _config.Config()

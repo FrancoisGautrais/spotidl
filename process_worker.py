@@ -152,7 +152,7 @@ class ProcessWorker:
 
     @staticmethod
     def new_process(pythonpath, url, i):
-        return subprocess.Popen([cfg["utils.python"], __file__, url, str(i)], stderr=sys.stderr, stdout=sys.stderr)
+        return subprocess.Popen([sys.executable, __file__, url, str(i)], stderr=sys.stderr, stdout=sys.stderr)
         #return subprocess.Popen([pythonpath, __file__, url, str(i)], stderr=open("err","w"), stdout=open("out","w"))
         #os.system("%s %s %s %d"%(pythonpath, __file__, url, i))
 
