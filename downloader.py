@@ -10,6 +10,7 @@ from SpotDlWrapper import SpotDlWrapper
 from fifio import FIFO
 from threading import Thread, Lock
 
+from portail.models import Queue, LogTrack
 from worker import Worker, ExceptionThread
 
 
@@ -69,7 +70,6 @@ class Downloader:
         self.spot = SpotDlWrapper()
         self.fifo = FIFO()
         self._lock=Lock()
-        self.db=db
         self._done=JsonArray()
         self._threads=JsonArray()
         self._errors=JsonArray()
@@ -87,7 +87,7 @@ class Downloader:
             for error in js["errors"]:
                 self._errors.append(JsonError.from_json(error))
 
-        for track in self.db.get_pended_queue():
+        for track in Queue.get():
             self.fifo.push(track)
         self._watchdog=WatchDogThread(self)
         self._watchdog.start()
@@ -165,11 +165,11 @@ class Downloader:
 
     def start(self):
         for i in range(self._n_thread):
-            self._threads.append(Worker(i, self))
+            pass#self._threads.append(Worker(i, self))
 
     def error(self, track, reason="Unknown"):
         self._errors.append(JsonError(track, reason))
-        self.db.log_set_fail(track, reason)
+        LogTrack.set_fail(track, reason)
 
     def check_alive(self):
         for i in range(len(self._threads)):
@@ -214,13 +214,13 @@ class Downloader:
         self.lock()
         self._done.append(track)
         self.unlock()
-        self.db.log_set_ok(track)
+        LogTrack.set_ok(track)
 
     def clear(self):
         self.lock()
         self.fifo.clear()
         self.unlock()
-        self.db.exec("delete from queue;")
+        Queue.clear()
 
     def clear_errors(self):
         self.lock()
@@ -287,13 +287,13 @@ class Downloader:
         return self._restart_running(url, False, isManual)
 
     def search(self, query, opt):
-        return self.spot.search(query, opt)
+        return self.spot.search(query, dict(opt))
 
     def prepend(self, track):
         self.lock()
         v = self.fifo.prepend(track)
         self.unlock()
-        self.db.log_set_queued(track)
+        LogTrack.set_queued(track)
 
     def remove_track(self, urls):
         if isinstance(urls, (list, tuple)):
@@ -305,7 +305,7 @@ class Downloader:
         for i in range(len(self.fifo.data)):
             x=self.fifo.data[i]
             if x and x.url and x.url.split("/")[-1]==urls:
-                self.db.remove_from_queue(self.fifo.data[i])
+                Queue.remove(self.fifo.data[i])
                 self.fifo.data[i]=None
         self.fifo.lock.release()
 
@@ -324,14 +324,14 @@ class Downloader:
         if isinstance(tracks, TrackSet):
             for track in tracks.tracks:
                 self.fifo.push(track)
-                self.db.add_to_queue(track)
+                Queue.add(track)
 
             return tracks
         if isinstance(tracks, (list, tuple)):
             ts = TrackSet()
             for track in tracks:
                 self.fifo.push(track)
-                self.db.add_to_queue(track)
+                Queue.add(track)
                 ts.add_tracks(track)
             return ts
         if isinstance(tracks, dict):
@@ -339,14 +339,13 @@ class Downloader:
 
         if isinstance(tracks, TrackEntry):
             self.fifo.push(tracks)
-            self.db.add_to_queue(tracks)
+            Queue.add(tracks)
             return tracks
 
         raise DownloaderException("add_track: le type passé (%s) est inattendu " % type(tracks).__name__)
 
     def add_track(self, tracks):
         self._add_track(tracks)
-        self.db.commit()
         if isinstance(tracks, TrackEntry):
             return TrackSet(tracks)
         if isinstance(tracks, TrackSet):

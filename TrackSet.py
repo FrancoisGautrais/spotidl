@@ -229,6 +229,13 @@ class AlbumEntry(list,Jsonable):
             "uuid" : self.uuid
         }
 
+    def as_log_dict(self):
+        return {
+            "name": self.name,
+            "year": self.year,
+            "uuid" : self.uuid
+        }
+
     def trackset(self):
         return TrackSet(self)
 

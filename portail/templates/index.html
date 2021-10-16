@@ -7,22 +7,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="third-party/css/bootstrap.min.css"  data-include="">
+    <link rel="stylesheet" href="static/third-party/css/bootstrap.min.css"  data-include="">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" >
-    <link href="/css/common.css" rel="stylesheet"  data-include="">
-    <link href="/css/colors.css" rel="stylesheet"  data-include="">
-    <link href="/css/info.css" rel="stylesheet"  data-include="">
-    <link href="/css/queue.css" rel="stylesheet"  data-include="">
-    <link href="/css/search.css" rel="stylesheet"  data-include="">
-    <link href="/css/parameters.css" rel="stylesheet"  data-include="">
-    <link href="/css/log.css" rel="stylesheet"  data-include="">
+    <link href="static/css/common.css" rel="stylesheet"  data-include="">
+    <link href="static/css/colors.css" rel="stylesheet"  data-include="">
+    <link href="static/css/info.css" rel="stylesheet"  data-include="">
+    <link href="static/css/queue.css" rel="stylesheet"  data-include="">
+    <link href="static/css/search.css" rel="stylesheet"  data-include="">
+    <link href="static/css/parameters.css" rel="stylesheet"  data-include="">
+    <link href="static/css/log.css" rel="stylesheet"  data-include="">
 
 
     <title>Spotify Downloader</title>
   </head>
   <body>
-    <#include("ui.html")>
-    <#include("modals.html")>
+    {% include "ui.html" %}
+    {% include "modals.html" %}
     <nav class="navbar navbar-expand-lg fond-color-1 color-4">
       <i class="material-icons menu-icon color-4">menu</i>
       <a class="navbar-brand" >Spotify Downloader</a>
@@ -50,38 +50,38 @@
     <div class="container">
       <div class="tab-content">
       <div class="tab-pane active" id="search-tab">
-          <#include("search.html")>
+          {% include "search.html" %}
         </div>
         <div class="tab-pane" id="info-tab">
-          <#include("info.html")>
+          {% include "info.html" %}
         </div>
         <div class="tab-pane" id="queue-tab">
-          <#include("queue.html")>
+          {% include "queue.html" %}
         </div>
         <div class="tab-pane" id="parameters-tab">
-          <#include("parameters.html")>
+          {% include "parameters.html" %}
         </div>
         <div class="tab-pane" id="log-tab">
-          <#include("log.html")>
+          {% include "log.html" %}
         </div>
       </div>
     </div>
 
 
-    <script src="third-party/js/jquery-3.5.1.min.js"  data-include=""></script>
-    <script src="third-party/js/popper.min.js"  data-include=""></script>
-    <script src="third-party/js/bootstrap.min.js" data-include=""></script>
-    <script src="third-party/js/mustache.min.js" data-include=""></script>
-    <script src="js/localdata.js" data-include=""></script>
-    <script src="js/template.js" data-include=""></script>
-    <script src="js/databind.js" data-include=""></script>
-    <script src="js/api.js" data-include=""></script>
-    <script src="js/ui.js" data-include=""></script>
-    <script src="js/common.js" data-include=""></script>
-    <script src="js/search.js" data-include=""></script>
-    <script src="js/queue.js" data-include=""></script>
-    <script src="js/info.js" data-include=""></script>
-    <script src="js/log.js" data-include=""></script>
-    <script src="js/parameters.js" data-include=""></script>
+    <script src="static/third-party/js/jquery-3.5.1.min.js"  data-include=""></script>
+    <script src="static/third-party/js/popper.min.js"  data-include=""></script>
+    <script src="static/third-party/js/bootstrap.min.js" data-include=""></script>
+    <script src="static/third-party/js/mustache.min.js" data-include=""></script>
+    <script src="static/js/localdata.js" data-include=""></script>
+    <script src="static/js/template.js" data-include=""></script>
+    <script src="static/js/databind.js" data-include=""></script>
+    <script src="static/js/api.js" data-include=""></script>
+    <script src="static/js/ui.js" data-include=""></script>
+    <script src="static/js/common.js" data-include=""></script>
+    <script src="static/js/search.js" data-include=""></script>
+    <script src="static/js/queue.js" data-include=""></script>
+    <script src="static/js/info.js" data-include=""></script>
+    <script src="static/js/log.js" data-include=""></script>
+    <script src="static/js/parameters.js" data-include=""></script>
   </body>
 </html>

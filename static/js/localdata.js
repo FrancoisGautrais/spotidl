@@ -1,3 +1,5 @@
+Mustache.tags = ['[[', ']]'];
+
 class LocalData {
   constructor() {
   }

@@ -1,0 +1,29 @@
+
+
+<template id="TI-form-text" data-param="value=;id=;label=;name=;type=text;cast=string">
+    <div class="input-group" data-if="[[if]]">
+      <span class="input-group-text">[[label]]</span>
+      <input type="[[type]]" aria-label="First name" class="form-control"
+             data-bind="[[name]]:[[cast]]" id="[[id]]" value="[[value]]">
+    </div>
+</template>
+
+<template id="TI-form-button" data-param="value=;id=;label=;class=,btntext=;onclick=">
+    <div class="input-group  mb-3"  data-if="[[if]]">
+      <span class="input-group-text">[[label]]</span>
+      <button class="btn [[class]]" onclick="[[onclick]]" type="button" >[[btntext]]</button>
+    </div>
+</template>
+
+
+<template id="TI-form-checkbox" data-param="value=;id=;label=;name=;type=checkbox;cast=bool;text=">
+    <div class="input-group" data-if="[[if]]">
+        <span class="input-group-text">[[label]]</span>
+        <div class="form-check" style="margin-left: 30px;">
+          <input class="form-check-input"
+                 data-bind="[[name]]:[[cast]]"
+                 type="[[type]]" value="[[value]]">
+            [[text]]
+        </div>
+    </div>
+</template>

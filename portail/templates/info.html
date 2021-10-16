@@ -5,39 +5,39 @@
 
 
 <template id="template-track">
-  <tr data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-url="{{url}}"  data-type="track"
-          data-search="{{artist}} {{album}} {{name}}" data-visible="true">
+  <tr data-artistid="[[artistid]]" data-albumid="[[albumid]]" data-url="[[url]]"  data-type="track"
+          data-search="[[artist]] [[album]] [[name]]" data-visible="true">
     <td class="selection-entry selection-entry-track">
       <div class="form-check">
       <input class="form-check-input track-checkbox" type="checkbox" value=""
-             data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-url="{{url}}"
+             data-artistid="[[artistid]]" data-albumid="[[albumid]]" data-url="[[url]]"
              data-type="track-checkbox" onchange="Selection.on_selection_changed()" checked>
       </div>
       <div>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        {{track_number}} - {{name}}
+        [[track_number]] - [[name]]
       </div>
     </td>
-    <td class="selection-entry selection-entry-track no-mobile">{{duration}}</td>
+    <td class="selection-entry selection-entry-track no-mobile">[[duration]]</td>
   </tr>
 </template>
 
 <template id="template-album">
-<tr data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-type="album" data-search="{{artist}} {{name}}">
+<tr data-artistid="[[artistid]]" data-albumid="[[albumid]]" data-type="album" data-search="[[artist]] [[name]]">
   <td  class="selection-entry selection-entry-album">
     <span class="d-flex flex-row">
-      <a class="toggle-album p-2"  onclick="Selection.toggle_table('album', '{{albumid}}')" data-artistid="{{artistid}}"
-              data-albumid="{{albumid}}">
+      <a class="toggle-album p-2"  onclick="Selection.toggle_table('album', '[[albumid]]')" data-artistid="[[artistid]]"
+              data-albumid="[[albumid]]">
         <i class="material-icons">expand_more</i>
       </a>
       <span class="select-album  p-2" >
-            <i id="i-album-{{albumid}}" class="material-icons color-2"
-               onclick="Selection.on_toggle_select('album',$(this), '{{albumid}}')" data-state="true">check_box</i>
-            {{name}} [{{year}}] (<span id="nb-selected-album-{{albumid}}"></span>
-              / <span id="nb-total-album-{{albumid}}"></span>)
+            <i id="i-album-[[albumid]]" class="material-icons color-2"
+               onclick="Selection.on_toggle_select('album',$(this), '[[albumid]]')" data-state="true">check_box</i>
+            [[name]] [[[year]]] (<span id="nb-selected-album-[[albumid]]"></span>
+              / <span id="nb-total-album-[[albumid]]"></span>)
       </span>
     </span>
-    <table class="table select-title"  data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-type="album-content">
+    <table class="table select-title"  data-artistid="[[artistid]]" data-albumid="[[albumid]]" data-type="album-content">
       <tbody>
         <tr data-template="template-track" data-var="tracks"></tr>
       </tbody>
@@ -47,27 +47,27 @@
 </template>
 
 <template id="template-artist">
-<div  data-artistid="{{artistid}}" data-type="artist" data-search="{{name}}">
+<div  data-artistid="[[artistid]]" data-type="artist" data-search="[[name]]">
   <table class="table select-artist">
     <thead>
       <tr>
         <th scope="col" class="selection-entry selection-entry-artist">
           <span class="d-flex flex-row">
-            <a class="toggle-artist p-2" onclick="Selection.toggle_table('artist', '{{artistid}}')" data-artistid="{{artistid}}">
+            <a class="toggle-artist p-2" onclick="Selection.toggle_table('artist', '[[artistid]]')" data-artistid="[[artistid]]">
               <i class="material-icons">expand_more</i>
             </a>
             <span class="select-artist p-2">
-                   <i id="i-artist-{{artistid}}" class="material-icons color-3"
-                      onclick="Selection.on_toggle_select('artist',$(this), '{{artistid}}')" data-state="true">check_box</i>
-                  {{name}}(<span id="nb-selected-artist-{{artistid}}"></span>
-                  / <span id="nb-total-artist-{{artistid}}"></span>)
+                   <i id="i-artist-[[artistid]]" class="material-icons color-3"
+                      onclick="Selection.on_toggle_select('artist',$(this), '[[artistid]]')" data-state="true">check_box</i>
+                  [[name]](<span id="nb-selected-artist-[[artistid]]"></span>
+                  / <span id="nb-total-artist-[[artistid]]"></span>)
 
             </span>
           </span>
         </th>
       </tr>
     </thead>
-    <tbody data-artistid="{{artistid}}" data-type="artist-content">
+    <tbody data-artistid="[[artistid]]" data-type="artist-content">
       <tr data-template="template-album" data-var="albums"></tr>
     </tbody>
   </table>
@@ -83,22 +83,22 @@
 ------------------------------------->
 
 <template id="template-playlist-elem">
-<tr data-artistid="{{artistid}}" data-albumid="{{albumid}}"
-    data-url="{{url}}"  data-type="track" data-search="{{artist}} {{album}} {{name}}">
+<tr data-artistid="[[artistid]]" data-albumid="[[albumid]]"
+    data-url="[[url]]"  data-type="track" data-search="[[artist]] [[album]] [[name]]">
   <td  class="selection-entry selection-entry-track">
     <div class="form-check">
-      <input class="form-check-input track-checkbox" type="checkbox" value="" data-artistid="{{artistid}}"
-           data-albumid="{{albumid}}" data-url="{{url}}" data-type="track-checkbox"
+      <input class="form-check-input track-checkbox" type="checkbox" value="" data-artistid="[[artistid]]"
+           data-albumid="[[albumid]]" data-url="[[url]]" data-type="track-checkbox"
             onchange="Selection.on_selection_changed()" checked>
     </div>
       <div>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        {{artist}}
+        [[artist]]
       </div>
   </td>
-  <td class="selection-entry selection-entry-track">{{track_number}} - {{name}}</td>
-  <td class="selection-entry selection-entry-track">{{album}}</td>
-  <td class="selection-entry selection-entry-track">{{duration}}</td>
+  <td class="selection-entry selection-entry-track">[[track_number]] - [[name]]</td>
+  <td class="selection-entry selection-entry-track">[[album]]</td>
+  <td class="selection-entry selection-entry-track">[[duration]]</td>
 </tr>
 </template>
 
@@ -112,7 +112,7 @@
         <th scope="col"> Durée </th>
       </tr>
     </thead>
-    <tbody data-artistid="{{artistid}}" data-type="artist-content">
+    <tbody data-artistid="[[artistid]]" data-type="artist-content">
       <tr data-template="template-playlist-elem" data-var="."></tr>
     </tbody>
   </table>

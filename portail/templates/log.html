@@ -32,32 +32,32 @@
 
 
 <template id="template-log-entry-track">
-  <tr data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-url="{{url}}"  data-type="track"
-          data-search="{{artist}} {{album}} {{name}}" data-visible="true">
+  <tr data-artistid="[[artistid]]" data-albumid="[[albumid]]" data-url="[[url]]"  data-type="track"
+          data-search="[[artist]] [[album]] [[name]]" data-visible="true">
     <td class="selection-entry selection-entry-track">
       <div>
-        <a data-template="template-log-entry-track-{{state}}"></a> {{track_number}} - {{name}}
+        <a data-template="template-log-entry-track-[[state]]"></a> [[track_number]] - [[name]]
       </div>
     </td>
-    <td class="selection-entry selection-entry-track no-mobile">{{duration}}</td>
-    <td class="selection-entry selection-entry-track no-mobile">{{timestamp}}</td>
+    <td class="selection-entry selection-entry-track no-mobile">[[duration]]</td>
+    <td class="selection-entry selection-entry-track no-mobile">[[timestamp]]</td>
   </tr>
 </template>
 
 <template id="template-log-entry-album">
-<tr data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-type="album" data-search="{{artist}} {{name}}">
+<tr data-artistid="[[artistid]]" data-albumid="[[albumid]]" data-type="album" data-search="[[artist]] [[name]]">
   <td  class="selection-entry selection-entry-album">
     <span class="d-flex flex-row">
-      <a class="toggle-album p-2"  onclick="Log.toggle_table('album', '{{albumid}}')" data-artistid="{{artistid}}"
-              data-albumid="{{albumid}}">
+      <a class="toggle-album p-2"  onclick="Log.toggle_table('album', '[[albumid]]')" data-artistid="[[artistid]]"
+              data-albumid="[[albumid]]">
         <i class="material-icons">expand_more</i>
       </a>
       <span class="select-album  p-2" >
-            <a data-template="template-log-entry-table-{{state}}"></a> {{name}} [{{year}}] ({{track_count}} pistes
-          {{#fail_count}}, <span class="color-1">{{fail_count}} erreurs</span> {{/fail_count}})
+            <a data-template="template-log-entry-table-[[state]]"></a> [[name]] [[[year]]] ([[track_count]] pistes
+          [[#fail_count]], <span class="color-1">[[fail_count]] erreurs</span> [[/fail_count]])
       </span>
     </span>
-    <table class="table select-title"  data-artistid="{{artistid}}" data-albumid="{{albumid}}" data-type="album-content">
+    <table class="table select-title"  data-artistid="[[artistid]]" data-albumid="[[albumid]]" data-type="album-content">
       <tbody>
         <tr data-template="template-log-entry-track" data-var="tracks"></tr>
       </tbody>
@@ -68,25 +68,25 @@
 
 
 <template id="template-log-entry-artist">
-    <div  data-artistid="{{artistid}}" data-type="artist" data-search="{{name}}">
+    <div  data-artistid="[[artistid]]" data-type="artist" data-search="[[name]]">
       <table class="table select-artist">
         <thead>
           <tr>
             <th scope="col" class="selection-entry selection-entry-artist">
               <span class="d-flex flex-row">
-                <a class="toggle-artist p-2" onclick="Log.toggle_table('artist', '{{artistid}}')" data-artistid="{{artistid}}">
+                <a class="toggle-artist p-2" onclick="Log.toggle_table('artist', '[[artistid]]')" data-artistid="[[artistid]]">
                   <i class="material-icons">expand_more</i>
                 </a>
                 <span class="select-artist p-2">
-                     <a data-template="template-log-entry-table-{{state}}"></a> {{name}} ({{album_count}} albums, {{track_count}} pistes
-                    {{#fail_count}},<span class="color-1"> {{fail_count}} erreurs</span> {{/fail_count}})
-                    à {{timestamp}}
+                     <a data-template="template-log-entry-table-[[state]]"></a> [[name]] ([[album_count]] albums, [[track_count]] pistes
+                    [[#fail_count]],<span class="color-1"> [[fail_count]] erreurs</span> [[/fail_count]])
+                    à [[timestamp]]
                 </span>
               </span>
             </th>
           </tr>
         </thead>
-        <tbody data-artistid="{{artistid}}" data-type="artist-content">
+        <tbody data-artistid="[[artistid]]" data-type="artist-content">
             <tr data-template="template-log-entry-album" data-var="albums"></tr>
         </tbody>
       </table>

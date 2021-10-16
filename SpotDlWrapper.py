@@ -1,5 +1,6 @@
 import os
 
+import utils
 from http_server import log
 from spotdl.command_line.exceptions import NoYouTubeVideoFoundError
 
@@ -44,6 +45,11 @@ class SpotDlWrapper:
 
 
     def search(self, query, opt):
+        opt=utils.dictassign({
+            "limit" : 10,
+            "offset" : 0,
+            "type" : ["track", 'artist', 'album']
+        }, opt)
         return self.spotipy.search(query, limit=opt["limit"], offset=opt["offset"], type=opt["type"])
 
     def download_track(self, track, progress, youtubeurl=None):

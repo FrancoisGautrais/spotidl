@@ -222,7 +222,7 @@ class Connector(SQConnector):
         self.init_base()
         self.load_users()
 
-
+    """
 
     def _log_track(self, track):
         self.exec("insert into log_track values ('%s', '%s', '%s', '%s', '%s', '%s', %f)"%(
@@ -249,7 +249,7 @@ class Connector(SQConnector):
         for art in data:
             self._log_artist(data[art])
         self.commit()
-
+"""
     def load_users(self):
         ret  = self.exec("select name from users;")
         for x in ret:
@@ -268,23 +268,25 @@ class Connector(SQConnector):
         else:
             raise BadUserException()
 
+    """
     def get_pended_queue(self):
         ret=self.exec("select data from queue order by timestamp")
         return list(map(lambda x: TrackEntry.from_track_entry_json(
             json.loads(x[0].replace('°', "'"))), ret))
 
+   
     def remove_from_queue(self, track):
         if isinstance(track, TrackEntry): track=track.json()
         self.exec("delete from queue where uuid='%s'"%track["uuid"])
         self.commit()
 
-    def add_to_queue(self, track, commit=False):
+  def add_to_queue(self, track, commit=False):
         if isinstance(track, TrackEntry): track=track.json()
         if self.one("select count(*) from queue where uuid='%s'"%track["uuid"])==0:
             self.exec("insert into queue values ('%s', '%s', %f)"%(
                 json.dumps(track).replace("'", '°'), track["uuid"],  time.time()
             ))
-        if commit: self.commit()
+        if commit: self.commit()"""
 
     def create_user(self, name, isAdmin, password=""):
         usr = User(self)
@@ -327,7 +329,7 @@ class Connector(SQConnector):
         "date-min" : None,
         "date-max" : None
     }
-
+"""
     def set_logged_track_state(self, track, commit=True):
         self.exec("update log_track set state='%s', error='%s', timestamp=%f where uuid='%s'"%(
             track.state, escape(track.error), time.time(), track.uuid
@@ -340,8 +342,8 @@ class Connector(SQConnector):
         js["state"]=state
         js["error"]=unescape(error)
         return js
-
-
+"""
+"""
     def log_set_ok(self, track):
         track.state=TrackEntry.STATE_OK
         track.error=None
@@ -358,7 +360,7 @@ class Connector(SQConnector):
         track.state=TrackEntry.STATE_QUEUED
         track.error=None
         self.set_logged_track_state(track)
-        self.add_to_queue(track)
+        self.add_to_queue(track)"""
 
     def _get_log_tracks(self, album_uuid):
         query="select data, state, error, timestamp from log_track where album_uuid='%s'" % album_uuid
