@@ -29,7 +29,7 @@ from manage import main
 first = True
 
 if __name__=="__main__":
-    subprocess.call(["/bin/env",  "python3", "runserver", *sys.argv[1:]])
+    subprocess.call(["/bin/env",  "python3", "manage.py", "runserver", *sys.argv[1:]])
 
 
 
