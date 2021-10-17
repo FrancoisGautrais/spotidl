@@ -12,8 +12,8 @@ from utils import Jsonable
 
 
 class JsonField(models.TextField):
-    def __init__(self, classe : type, *args, **kwargs):
-        if not issubclass(classe, Jsonable) and classe is not None:
+    def __init__(self, classe : type=None, *args, **kwargs):
+        if classe is not None and not issubclass(classe, Jsonable):
             raise Exception("Erreur le type de Jsonfield doit être une classe hérité de Jsonable ou None")
         self.classe = classe
         super().__init__(*args, **kwargs)
@@ -75,7 +75,7 @@ class PreferencesData(Jsonable):
 
 class Preferences(models.Model):
     user = models.ForeignKey(User, primary_key=True, on_delete=models.CASCADE)
-    data = JsonField(PreferencesData)
+    data = JsonField(classe=PreferencesData)
 
 
     @staticmethod
