@@ -4,7 +4,6 @@ import utils
 import log
 from spotdl.command_line.exceptions import NoYouTubeVideoFoundError
 
-from config import cfg
 import spotdl
 from spotdl.authorize.services import AuthorizeSpotify
 from spotdl.config import DEFAULT_CONFIGURATION
@@ -24,19 +23,26 @@ def has_artist(track, artist_id):
     return False
 
 
-
+cfg = None
 class SpotDlWrapper:
 
     def __init__(self, init=True):
         self.spotipy=None
         self.tool=None
+        self.dir=None
+        self.format=None
+        self.ext=None
+        if init: self.init()
+
+    def init(self):
+        global cfg
+        from config import cfg as f
+        cfg = f
+
         self.dir=cfg["output.dir"]
         self.format=cfg["output.format"]
         self.ext=cfg["output.extension"]
         self.completeFormat=os.path.join(self.dir, self.format)
-        if init: self.init()
-
-    def init(self):
         self.spotipy=AuthorizeSpotify(
             client_id=DEFAULT_CONFIGURATION["spotify-downloader"]["spotify_client_id"],
             client_secret=DEFAULT_CONFIGURATION["spotify-downloader"]["spotify_client_secret"],
@@ -87,7 +93,8 @@ class SpotDlWrapper:
 
     def download_while_re_encoding(self, track, stream, filename, progress,
                                    target_encoding=None,
-                                   encoder=EncoderFFmpeg(cfg["utils.ffmpeg"], False)):
+                                   encoder=None):
+        if encoder is None: encoder=EncoderFFmpeg(cfg["utils.ffmpeg"], False)
 
         total_chunks = track._calculate_total_chunks(stream["filesize"])
 
