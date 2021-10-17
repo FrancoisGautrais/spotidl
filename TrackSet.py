@@ -1,6 +1,7 @@
+import json
 from abc import ABCMeta, abstractmethod
 
-from http_server import utils
+import utils
 
 
 class Jsonable:
@@ -144,6 +145,7 @@ class TrackEntry(Jsonable):
 
     @staticmethod
     def from_track_entry_json(x):
+        if isinstance(x, str): x= json.loads(x)
         te = TrackEntry(None)
         te.artists=list(map(lambda y: ArtistEntryShort(y), x["artists"]))
         te.duration=x["duration"]

@@ -231,7 +231,6 @@ class QueueTab
     {
         this.db_youtube.updateFields()
         var  url = this.db_youtube.fields.url
-        console.log("url====",url)
         API.manual_error(this.youtube_index, url, {
             success: function(d){
                 toast("1 fichier ajouté")

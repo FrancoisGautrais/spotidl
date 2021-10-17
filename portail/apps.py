@@ -1,11 +1,6 @@
 import sys
 
-import config
-import log
-cfg = config.init("config.json")
-if cfg.is_default:
-    cfg.write("config.json")
-log.init(log.Log.INFO)
+
 
 
 
@@ -17,6 +12,15 @@ class PortailConfig(AppConfig):
     name = 'portail'
 
     def ready(self, *args, **kwargs):
+
         if 'runserver' in sys.argv:
+            print("here !")
+            import config
+            import log
+            cfg = config.init("config.json")
+            if cfg.is_default:
+                cfg.write("config.json")
+            log.init(log.Log.INFO)
+
             from portail.views import serv
             serv.init()

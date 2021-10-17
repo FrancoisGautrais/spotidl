@@ -4,7 +4,7 @@ import time
 import uuid
 
 import config
-from http_server import log
+import log
 from TrackSet import TrackSet, TrackEntry, JsonArray, Jsonable, Refer
 from SpotDlWrapper import SpotDlWrapper
 from fifio import FIFO
@@ -66,7 +66,7 @@ class Downloader:
 
     DONE_SIZE=1024
     THREAD_TIMEOUT=3600 #1h
-    def __init__(self, db, nThreads=1):
+    def __init__(self, nThreads=1):
         self.spot = SpotDlWrapper()
         self.fifo = FIFO()
         self._lock=Lock()
@@ -88,7 +88,7 @@ class Downloader:
                 self._errors.append(JsonError.from_json(error))
 
         for track in Queue.get():
-            self.fifo.push(track)
+            self.fifo.push(TrackEntry.from_track_entry_json(track))
         self._watchdog=WatchDogThread(self)
         self._watchdog.start()
 
@@ -165,7 +165,7 @@ class Downloader:
 
     def start(self):
         for i in range(self._n_thread):
-            pass#self._threads.append(Worker(i, self))
+            self._threads.append(Worker(i, self))
 
     def error(self, track, reason="Unknown"):
         self._errors.append(JsonError(track, reason))
@@ -354,6 +354,7 @@ class Downloader:
 
     def _get_info(self, url, refer=None):
         if isinstance(url, str):
+            print("'https://open.spotify.com/track/' '%s' %s"%(url, url.startswith("https://open.spotify.com/track/")))
             if url.startswith("https://open.spotify.com/track/"):
                 track=self.spot.track(url)
                 if refer: refer.add_track(url, track)

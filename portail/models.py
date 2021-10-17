@@ -1,10 +1,51 @@
 import json
 import time
 
+from django.contrib import admin
+from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
+import utils
 from TrackSet import TrackEntry, AlbumEntry, ArtistEntry
+from utils import Jsonable
+
+
+class JsonField(models.TextField):
+    def __init__(self, classe : type, *args, **kwargs):
+        if not issubclass(classe, Jsonable) and classe is not None:
+            raise Exception("Erreur le type de Jsonfield doit être une classe hérité de Jsonable ou None")
+        self.classe = classe
+        super().__init__(*args, **kwargs)
+
+    def get_prep_value(self, value):
+        if isinstance(value, str) or value is None:
+            return value
+        if isinstance(value, dict):
+            return json.dumps(value)
+        if self.classe and isinstance(value, self.classe):
+            return json.dumps(value.to_json())
+        raise Exception()
+
+    def from_db_value(self, value, expression, connection):
+        if value is None:
+            return value
+        if isinstance(value, str):
+            return self.classe.from_json(json.loads(value))
+        if isinstance(value, dict):
+            return self.classe.from_json(value)
+        raise Exception()
+
+    def to_python(self, value):
+        if value is None:
+            return value
+        if isinstance(value, str):
+            return self.classe.from_json(json.loads(value))
+        if isinstance(value, dict):
+            return self.classe.from_json(value)
+        raise Exception()
+
+
 
 class History(models.Model):
     data = models.TextField()
@@ -13,6 +54,46 @@ class History(models.Model):
     search = models.TextField()
     timestamp = models.FloatField()
 
+class PreferencesData(Jsonable):
+    FIELDS = []
+    DEFAULT = {
+
+    }
+
+    def __init__(self, **kwargs):
+        kwargs = utils.deepassign({}, PreferencesData.DEFAULT, kwargs)
+        for k in kwargs:
+            if k in PreferencesData.FIELDS:
+                setattr(self, k, kwargs[k])
+
+    def to_json(self):
+        return { k: ((getattr(self,k)) if hasattr(self,k) else None) for k in PreferencesData.FIELDS}
+
+    @staticmethod
+    def from_json(js : (dict, list, int, float)):
+        return PreferencesData(**js)
+
+class Preferences(models.Model):
+    user = models.ForeignKey(User, primary_key=True, on_delete=models.CASCADE)
+    data = JsonField(PreferencesData)
+
+
+    @staticmethod
+    def get(username):
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise Exception("OK !!")
+        try:
+            return Preferences.objects.get(user=user)
+        except Preferences.DoesNotExist:
+            return Preferences.new(user.username)
+
+
+    @staticmethod
+    def new(username, **kwargs):
+        user = User.objects.get(username=username)
+        return Preferences.objects.create(user=user, data = PreferencesData(**kwargs))
 
 
 class Queue(models.Model):
@@ -59,13 +140,30 @@ class LogAlbum(models.Model):
 
     @staticmethod
     def log(album : AlbumEntry):
-        LogTrack.object.create(
+        LogAlbum.objects.create(
             name=album.name,
             year=album.year,
             uuid=album.uuid,
             artist_uuid=album.artist_uuid,
             timestamp=time.time()
         )
+        for track in album:
+            LogTrack.log(track)
+
+    @staticmethod
+    def get(**kwargs):
+        res = LogAlbum.objects.filter(**kwargs)
+        out = []
+        for x in res:
+            out.append(
+                {
+                    "name" : x.name,
+                    "year" : x.year,
+                    "tracks" : LogTrack.get(album_uuid=x.uuid)
+                }
+            )
+        return list(out)
+
 
     @staticmethod
     def clear():
@@ -82,11 +180,13 @@ class LogArtist(models.Model):
 
     @staticmethod
     def log(artist : ArtistEntry):
-        LogTrack.object.create(
+        LogArtist.objects.create(
             name=artist.name,
             uuid=artist.uuid,
             timestamp=time.time()
         )
+        for alb in artist.albums:
+            LogAlbum.log(artist.albums[alb])
 
     @staticmethod
     def clear():
@@ -108,7 +208,7 @@ class LogTrack(models.Model):
 
     @staticmethod
     def log(track : TrackEntry):
-        LogTrack.object.create(
+        LogTrack.objects.create(
             data=json.dumps(track.json()),
             uuid=track.uuid,
             state=TrackEntry.STATE_QUEUED,
@@ -118,6 +218,7 @@ class LogTrack(models.Model):
             timestamp=time.time()
         )
 
+
     @staticmethod
     def set(track : TrackEntry):
         t = LogTrack.objects.get(uuid=track.uuid)
@@ -126,8 +227,16 @@ class LogTrack(models.Model):
         t.timestamp=time.time()
 
     @staticmethod
-    def get(uuid : str):
-        return  LogTrack.objects.get(uuid=uuid)
+    def get(**kwargs):
+        tracks = LogTrack.objects.filter(**kwargs)
+        out = []
+        for track in tracks:
+            js =  json.loads(track.data)
+            js["state"] = track.state
+            js["error"] = track.error
+            js["timestamp"] = track.timestamp
+            out.append(js)
+        return out
 
     @staticmethod
     def set_ok(track):
@@ -169,6 +278,12 @@ def LOG_DEFAULT_QUERY():
     }
 
 
+admin.site.register(LogTrack)
+admin.site.register(LogAlbum)
+admin.site.register(LogArtist)
+admin.site.register(Queue)
+admin.site.register(History)
+
 class DBLogger:
 
     def log_refer(self, refer):
@@ -186,10 +301,14 @@ class DBLogger:
             base = base[offset:offset+limit]
         else:
             base = base[offset:]
+        out=[]
+        for art in base.values("name", "uuid", "timestamp"):
+            art["albums"] = LogAlbum.get(artist_uuid=art["uuid"])
+            out.append(art)
 
         return {
-            "artists" : base.values("name", "uuid", "timestamp"),
-            "total" : len(base)
+            "data" : out,
+            "total" : len(out)
         }
 
     def clear_logs(self):

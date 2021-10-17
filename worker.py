@@ -3,7 +3,7 @@ import threading
 import ctypes
 import time
 
-from http_server import log
+import log
 from spotdl.command_line.exceptions import NoYouTubeVideoFoundError
 
 from TrackSet import TrackEntry

@@ -1,4 +1,4 @@
-from http_server import utils
+import utils
 
 import config
 import spotipy

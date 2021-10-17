@@ -313,3 +313,14 @@ def new_key(size):
     for i in range(size):
         out += chars[random.randint(0, len(chars) - 1)]
     return out
+
+
+
+class Jsonable:
+
+    def to_json(self) -> (dict, list, int, float):
+        raise NotImplementedError
+
+    @staticmethod
+    def from_json(js : (dict, list, int, float)):# ->  Jsonable:
+        raise NotImplementedError

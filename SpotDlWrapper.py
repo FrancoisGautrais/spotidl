@@ -1,7 +1,7 @@
 import os
 
 import utils
-from http_server import log
+import log
 from spotdl.command_line.exceptions import NoYouTubeVideoFoundError
 
 from config import cfg

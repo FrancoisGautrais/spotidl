@@ -124,6 +124,7 @@ class LogTab {
         set_visible(this.next_btn, this.data.total>this.opt.offset+this.opt.limit)
         set_visible(this.prev_btn, this.opt.offset-this.opt.limit>=0)
         this.root.empty()
+        console.log(res)
         for(var i in res.data){
             var d = res.data[i];
             this.process_results(d);

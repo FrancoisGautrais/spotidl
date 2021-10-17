@@ -90,7 +90,7 @@ class DlAPI
     _ajax_get(url, opt={}){
         opt=Object.assign({
             headers : {}, ajax: {}, success : null, errorFct : null, errorText :null}, opt)
-        console.log("URL ='"+url+"'")
+            //console.log("URL ='"+url+"'")
         return this._ajax(url, opt.ajax, opt.headers, opt.success, opt.errorFct, opt.errorText, true)
     }
 
@@ -134,7 +134,7 @@ class DlAPI
     }
 
     list(url, opt={}){
-        return this.ajax_get("list/"+url, opt)
+        return this.ajax_get("list/?url="+url, opt)
     }
 
     cancel_running(url, opt={}){

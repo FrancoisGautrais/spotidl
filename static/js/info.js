@@ -21,7 +21,6 @@ class SelectionTab {
     }
 
     unselect_all(type, id){
-        console.log("unselect all", type, id)
         if(type) this.root.find("input[data-type=track-checkbox][data-"+type+"id='"+id+"']").prop("checked", false)
         else this.root.find(".track-checkbox").prop("checked", false)
         this.on_selection_changed()

@@ -21,6 +21,10 @@
 }
 
 
+.nav-right {
+    right: 0px;
+    position: absolute;
+}
 
 @media (max-width: 960px){
     .loading {

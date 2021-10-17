@@ -176,7 +176,6 @@ function process_input_tracks_array(tracks, spot=false){
     for(var i in tracks){
         tracks[i]=spot?process_input_track_spotify(tracks[i]):process_input_track(tracks[i]);
         tracks[i].index=i;
-        console.log("track = ", tracks[i])
     }
     return tracks
 }
@@ -335,13 +334,11 @@ class MenuWidget {
     }
 
     show() {
-        console.log("Menu.show()")
         this.host.show();
         this.overlay.show();
     }
 
     hide() {
-        console.log("Menu.hide()")
         this.host.hide();
         this.overlay.hide();
     }

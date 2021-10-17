@@ -1,6 +1,5 @@
 import os
 
-from http_server import config
 
 DEFAULT_CONFIG={
     "server" : {

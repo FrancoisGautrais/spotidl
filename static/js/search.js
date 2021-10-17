@@ -298,7 +298,6 @@ class AdvancedSearchTab
 
     __nav(){
         var self=this;
-        console.log("here offset="+this.opt.offset)
         API.search(this.opt.query, this.opt, {
             success: function(d){ self.show_results(d)},
             errorFct: function(x,y,z){
