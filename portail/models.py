@@ -12,7 +12,7 @@ from utils import Jsonable
 
 
 class JsonField(models.TextField):
-    def __init__(self, classe : type=None, *args, **kwargs):
+    def __init__(self, classe : type, *args, **kwargs):
         if not issubclass(classe, Jsonable) and classe is not None:
             raise Exception("Erreur le type de Jsonfield doit être une classe hérité de Jsonable ou None")
         self.classe = classe
