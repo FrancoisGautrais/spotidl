@@ -8,6 +8,7 @@ from django.db import models
 # Create your models here.
 import utils
 from TrackSet import TrackEntry, AlbumEntry, ArtistEntry
+from portail.errors import BadParameterException, AttributeNotFoundException
 from utils import Jsonable
 
 
@@ -55,31 +56,68 @@ class History(models.Model):
     timestamp = models.FloatField()
 
 class PreferencesData(Jsonable):
-    FIELDS = []
+    FIELDS = ["name"]
     DEFAULT = {
-
+        "name" : "salut"
     }
 
     def __init__(self, **kwargs):
-        kwargs = utils.deepassign({}, PreferencesData.DEFAULT, kwargs)
-        for k in kwargs:
-            if k in PreferencesData.FIELDS:
-                setattr(self, k, kwargs[k])
+        self.set(data=kwargs)
 
-    def to_json(self):
-        return { k: ((getattr(self,k)) if hasattr(self,k) else None) for k in PreferencesData.FIELDS}
+    def json(self):
+        return { k: getattr(self, k) for k in self.fields}
 
     @staticmethod
     def from_json(js : (dict, list, int, float)):
         return PreferencesData(**js)
+
+    def __repr__(self): return self.__str__()
+
+    def __str__(self):
+        return json.dumps(self.json())
+
+    def get(self, key=None):
+        if key is not None:
+            if not key in self.fields:
+                raise AttributeNotFoundException("La clé de préférence '%s'")
+            return getattr(self, key)
+        return self.json()
+
+    def set(self, key=None, data=None):
+        if key is not None:
+            setattr(self, key, data)
+            if not key in self.fields:
+                self.fields.append(key)
+        elif isinstance(data, dict):
+            self.fields=[]
+            kwargs = utils.deepassign({}, PreferencesData.DEFAULT, data)
+            for k in kwargs:
+                if k in PreferencesData.FIELDS:
+                    setattr(self, k, kwargs[k])
+                    self.fields.append(k)
+        else:
+            raise BadParameterException("La fonction PreferencesData::set attend 'key'(str) et 'value'(*) ou 'data'(dict)")
+
+
 
 class Preferences(models.Model):
     user = models.ForeignKey(User, primary_key=True, on_delete=models.CASCADE)
     data = JsonField(classe=PreferencesData)
 
 
+    def json(self):
+        return self.data.json()
+
+    def set(self, key=None, data=None):
+        self.data.set(key=key, data=data)
+        self.save()
+
+    def get(self, field=None):
+        return self.data.get(field)
+
+
     @staticmethod
-    def get(username):
+    def from_user(username):
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
@@ -88,6 +126,7 @@ class Preferences(models.Model):
             return Preferences.objects.get(user=user)
         except Preferences.DoesNotExist:
             return Preferences.new(user.username)
+
 
 
     @staticmethod
@@ -253,7 +292,6 @@ class LogTrack(models.Model):
         LogTrack.set(track)
         Queue.remove(track)
 
-
     @staticmethod
     def set_queued(track):
         track.state=TrackEntry.STATE_QUEUED
@@ -267,6 +305,8 @@ class LogTrack(models.Model):
         for x in tmp:
             x["data"] = json.loads(x["data"])
         return tmp
+
+
 
 def LOG_DEFAULT_QUERY():
     return{

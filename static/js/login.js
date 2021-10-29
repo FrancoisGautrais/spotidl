@@ -16,7 +16,7 @@ class LoginPage
     connect(){
         var data = this.db.updateFields()
         var self = this;
-        API.ajax_post("/auth", data,{
+        API.ajax_post("user/auth", data,{
             success: function(d){self.on_success(d)},
             errorFct:  function(a,b,c){self.on_error(a,b,c)}
         } )

@@ -14,6 +14,7 @@ class ParametersTab
     save(){
         Loading.open();
         var self=this
+        self.db.updateFields()
         API.set_config(this.db.fields,{
             success:function(d){
                 self._load(d)

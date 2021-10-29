@@ -2,7 +2,7 @@
 class DlAPI
 {
     constructor(){
-        this.url_base="/api/command"
+        this.url_base=""
     }
 
     url(x){
@@ -112,37 +112,33 @@ class DlAPI
     }
 
     count(opt={}){
-        return this.ajax_get("count", opt)
+        return this.ajax_get("queue/count", opt)
     }
     running(opt={}){
-        return this.ajax_get("running", opt)
+        return this.ajax_get("queue/running", opt)
     }
     done(opt={}){
-        return this.ajax_get("done", opt)
+        return this.ajax_get("queue/done", opt)
     }
 
     queue(opt={}){
         return this.ajax_get("queue", opt)
     }
 
-    running(opt={}){
-        return this.ajax_get("queue/running", opt)
-    }
-
     add_url(url, opt={}){
-        return this.ajax_get("add/"+url, opt)
+        return this.ajax_get("queue/add/"+url, opt)
     }
 
     list(url, opt={}){
-        return this.ajax_get("list/?url="+url, opt)
+        return this.ajax_get("queue/list?url="+url, opt)
     }
 
     cancel_running(url, opt={}){
-        return this.ajax_get("running/cancel/"+url, opt)
+        return this.ajax_get("queue/running/cancel?url="+url, opt)
     }
 
     restart_running(url, opt={}){
-        return this.ajax_get("running/restart/"+url, opt)
+        return this.ajax_get("queue/running/restart?url="+url, opt)
     }
 
     remove_queue(url, opt={}){
@@ -150,36 +146,42 @@ class DlAPI
     }
 
     clear_queue(opt={}){
-        return this.ajax_get("clear/queue", opt)
+        return this.ajax_get("queue/clear", opt)
     }
 
     clear_all(opt={}){
-        return this.ajax_get("clear/all", opt)
+        return this.ajax_get("queue/clear/clear", opt)
     }
 
     clear_errors(opt={}){
-        return this.ajax_get("clear/errors", opt)
+        return this.ajax_get("queue/errors/clear", opt)
     }
 
     remove_errors(i, opt={}){
-        return this.ajax_get("remove/errors/"+i, opt)
+        return this.ajax_get("queue/errors/"+i+"/remove", opt)
     }
 
     remove_done(i, opt={}){
-        return this.ajax_get("remove/done/"+i, opt)
+        return this.ajax_get("queue/done/remove"+i, opt)
     }
+
+    restart_error(index, opt={})
+    {
+        return this.ajax_get("queue/error/"+index+"/restart",opt)
+    }
+
 
 
     clear_done(opt={}){
-        return this.ajax_get("clear/done", opt)
+        return this.ajax_get("queue/done/clear", opt)
     }
 
     add_post(data, opt={}){
-        return this.ajax_post("add", data, opt)
+        return this.ajax_post("queue/add", data, opt)
     }
 
     list_file(url, opt={}){
-        return this.ajax_post("list", data, opt)
+        return this.ajax_post("queue/list", data, opt)
     }
 
     set_config(data, opt={})
@@ -206,21 +208,15 @@ class DlAPI
     {
         return this.ajax_post("subsonic/test", data, opt)
     }
-
-    restart_error(index, opt={})
-    {
-        return this.ajax_get("restart/error/"+index,opt)
-    }
-
     manual_error(index, url, opt={})
     {
-        return this.ajax_post("restart/error/"+index, {url: url},opt)
+        return this.ajax_post("queue/error/"+index+"/restart", {url: url},opt)
     }
 
     get_logs(data, opt={})
     {
 
-        return this.ajax_get("user/logs?"+Utils.dictToParams(data),opt)
+        return this.ajax_get("logs?"+Utils.dictToParams(data),opt)
     }
 
     ping(url, opt={})

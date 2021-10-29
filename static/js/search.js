@@ -128,7 +128,7 @@ class SimpleSearchTab
        var fd = new FormData();
        fd.append("file", $("#file-value")[0].files[0])
        jQuery.ajax({
-            url: "/api/command/list",
+            url: "/queue/list",
             type: "post",
             data: fd,
             processData: false,

@@ -28,8 +28,26 @@ while do_continue:
 from manage import main
 first = True
 
+class A:
+
+    def __init__(self):
+        print(self.__class__.__name__)
+
+    @classmethod
+    def instanciate(cls):
+        return cls()
+
+
+class B(A):
+
+    pass
+
+
 if __name__=="__main__":
-    subprocess.call(["/bin/env",  "python3", "manage.py", "runserver", *sys.argv[1:]])
+    #subprocess.call(["/bin/env",  "python3", "manage.py", "runserver", *sys.argv[1:]])
+    print(A.instanciate())
+    print(B.instanciate())
+
 
 
 

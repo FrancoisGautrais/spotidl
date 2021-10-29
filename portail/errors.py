@@ -41,3 +41,7 @@ path("api/command/config", serv.api_get_config)
 path("api/command/config", serv.api_set_config)
 
 """
+
+class BadParameterException(Exception): pass
+
+class AttributeNotFoundException(Exception): pass

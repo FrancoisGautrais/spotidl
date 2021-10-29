@@ -22,5 +22,5 @@ class PortailConfig(AppConfig):
                 cfg.write("config.json")
             log.init(log.Log.INFO)
 
-            from portail.views import serv
-            serv.init()
+            from portail.views import BaseHandler
+            BaseHandler.init()
