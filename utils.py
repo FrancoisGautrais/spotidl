@@ -4,9 +4,9 @@ import stat
 import threading
 import uuid
 import random
+from urllib import parse
 
 import magic
-import pystache
 from threading import Lock
 from threading import Thread
 import hashlib
@@ -70,14 +70,6 @@ def start_thread(cb : Callback):
     t=ThreadWrapper(cb)
     t.start()
     return t
-
-
-def html_template(path, data):
-    with open(path) as file:
-        return pystache.render(file.read(), data)
-
-def html_template_string(source, data):
-    return pystache.render(source, data)
 
 def sha256(s):
     m=hashlib.sha256()
