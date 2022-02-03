@@ -49,6 +49,7 @@ urlpatterns = [
 
     abspath("", views.index),
     abspath("login", views.login),
+    abspath("login/", views.login),
 
     path("user/logout", user.api_logout),
     path("user/auth", user.api_auth),

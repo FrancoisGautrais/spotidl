@@ -15,7 +15,7 @@ def need_auth(func, isapi=False):
             req.prefs = Preferences.from_user(req.user.username)
             return func(*args, **kwargs)
         if isapi: return self.serv_json_unauthorized("")
-        return HttpResponseRedirect(reverse('login'))
+        return HttpResponseRedirect('/login')
     return wrapper
 
 def need_auth_api(func):
