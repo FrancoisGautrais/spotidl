@@ -67,6 +67,10 @@ class PreferencesData(Jsonable):
     def json(self):
         return { k: getattr(self, k) for k in self.fields}
 
+
+    def to_json(self):
+        return { k: getattr(self, k) for k in self.fields}
+
     @staticmethod
     def from_json(js : (dict, list, int, float)):
         return PreferencesData(**js)
